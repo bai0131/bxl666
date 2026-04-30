@@ -218,6 +218,8 @@
       function initMusic() {
         fetchReleaseAssets(MUSIC_API)
           .then(function (musicAssets) {
+            console.log('GitHub Release 返回的文件:', musicAssets.map(function(a){ return a.name; }));
+
             var prefixMap = {};
             for (var i = 0; i < musicAssets.length; i++) {
               var m = musicAssets[i];
@@ -230,6 +232,8 @@
                 prefixMap[prefix] = m;
               }
             }
+
+            console.log('最终选中的格式:', prefixMap);
 
             var prefixes = Object.keys(prefixMap).sort();
             var pairs = [];
@@ -716,5 +720,7 @@
       });
     })();
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/eruda@3.4.1/eruda.min.js"></script>
+  <script>if(typeof eruda!=='undefined')eruda.init();</script>
 </body>
 </html>
