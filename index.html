@@ -88,26 +88,10 @@
 
   </main>
 
-  <div id="dbg" style="position:fixed;bottom:0;left:0;right:0;max-height:35vh;overflow-y:auto;background:rgba(0,0,0,0.88);color:#0f0;font:11px/1.4 monospace;padding:8px;z-index:99999;white-space:pre-wrap;word-break:break-all;"></div>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>
 
   <script>
     (function () {
-      var _log = console.log, _err = console.error, _warn = console.warn;
-      var buf = [];
-      function add(tag, args) {
-        var msg = Array.prototype.slice.call(args).join(' ');
-        buf.push(tag + ' ' + msg);
-        if (buf.length > 30) buf.shift();
-        var el = document.getElementById('dbg');
-        if (el) el.textContent = buf.join('\n');
-      }
-      console.log = function(){ _log.apply(console, arguments); add('[L]', arguments); };
-      console.error = function(){ _err.apply(console, arguments); add('[❌]', arguments); };
-      console.warn = function(){ _warn.apply(console, arguments); add('[⚠]', arguments); };
-      window.onerror = function(m){ add('[❌]', [m]); };
-
       /* ===========================================================
          DOM 引用
          =========================================================== */
@@ -164,10 +148,8 @@
       initTheme();
 
       /* ===========================================================
-         APlayer 初始化 —— GitHub Release 动态抓取 + 映射表
+         APlayer 初始化 —— 本地 music/ 直读
          =========================================================== */
-      var MUSIC_API  = 'https://api.github.com/repos/bai0131/bxl666/releases/tags/music';
-
       var musicMap = {
         'bgm1':  { title: '那天下雨了',   artist: '周杰伦' },
         'bgm2':  { title: '晴天',         artist: '周杰伦' },
@@ -183,43 +165,26 @@
         'bgm12': { title: '反方向的钟',   artist: '周杰伦' }
       };
 
-      function fetchReleaseAssets(apiUrl) {
-        return fetch(apiUrl + '?t=' + Date.now(), { cache: 'no-store' })
-          .then(function (res) {
-            if (!res.ok) throw new Error('Release fetch failed: ' + apiUrl);
-            return res.json();
-          })
-          .then(function (data) {
-            return data.assets || [];
-          })
-          .catch(function (err) {
-            console.warn('Release 请求失败:', apiUrl, err);
-            return [];
-          });
-      }
-
-      function buildAudioList(tracks) {
+      function initMusic() {
         var now = Date.now();
+        var keys = Object.keys(musicMap);
         var audioList = [];
-        for (var n = 0; n < tracks.length; n++) {
-          var t = tracks[n];
+        for (var i = 0; i < keys.length; i++) {
+          var key = keys[i];
+          var info = musicMap[key];
+          var file = key.toLowerCase();
           audioList.push({
-            name: t.name,
-            artist: t.artist,
-            url: t.musicUrl + '?t=' + now,
-            lrc: t.lrcUrl + '?t=' + now,
-            cover: t.coverUrl + '?t=' + now
+            name: info.title,
+            artist: info.artist,
+            url: './music/' + file + '.mp3?t=' + now,
+            lrc: './music/' + file + '.lrc?t=' + now,
+            cover: './music/' + key + '.jpg?t=' + now,
+            type: 'auto'
           });
         }
-        return audioList;
-      }
 
-      function initPlayer(audioList) {
-        if (audioList.length === 0) {
-          console.warn('未匹配到任何音乐文件');
-          return;
-        }
         console.log('APlayer audio 数组:', JSON.stringify(audioList, null, 2));
+
         new APlayer({
           container: document.getElementById('aplayer'),
           fixed: true,
@@ -229,48 +194,6 @@
           theme: '#2980b9',
           audio: audioList
         });
-      }
-
-      function initMusic() {
-        fetchReleaseAssets(MUSIC_API)
-          .then(function (musicAssets) {
-            console.log('GitHub Release 返回的文件:', musicAssets.map(function(a){ return a.name; }));
-
-            var prefixMap = {};
-            for (var i = 0; i < musicAssets.length; i++) {
-              var m = musicAssets[i];
-              var mName = m.name;
-              var match = mName.match(/\.(flac|mp3)$/i);
-              if (!match) continue;
-              var prefix = mName.replace(/\.(flac|mp3)$/i, '');
-              var ext = match[1].toLowerCase();
-              if (!prefixMap[prefix] || ext === 'mp3') {
-                prefixMap[prefix] = m;
-              }
-            }
-
-            console.log('最终选中的格式:', prefixMap);
-
-            var prefixes = Object.keys(prefixMap).sort();
-            var pairs = [];
-            for (var p = 0; p < prefixes.length; p++) {
-              var prefix = prefixes[p];
-              var m = prefixMap[prefix];
-              var prefixLower = prefix.toLowerCase();
-              var info = musicMap[prefix] || { title: prefix, artist: 'Jay Chou' };
-              pairs.push({
-                name: info.title,
-                artist: info.artist,
-                musicUrl: m.browser_download_url,
-                lrcUrl: './music/' + prefixLower + '.lrc',
-                coverUrl: './music/' + prefix + '.jpg'
-              });
-            }
-            initPlayer(buildAudioList(pairs));
-          })
-          .catch(function () {
-            console.warn('GitHub API 失败，播放器无法加载');
-          });
       }
 
       initMusic();
