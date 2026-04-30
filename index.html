@@ -151,7 +151,6 @@
          APlayer 初始化 —— GitHub Release 动态抓取 + 映射表
          =========================================================== */
       var MUSIC_API  = 'https://api.github.com/repos/bai0131/bxl666/releases/tags/music';
-      var COVERS_API = 'https://api.github.com/repos/bai0131/bxl666/releases/tags/covers';
 
       var musicMap = {
         'bgm1':  { title: '那天下雨了',   artist: '周杰伦' },
@@ -183,57 +182,60 @@
           });
       }
 
-      function pairAllAssets(musicAssets, coverAssets) {
-        var pairs = [];
+      function pairAllAssets(musicAssets) {
+        var prefixMap = {};
+
         for (var i = 0; i < musicAssets.length; i++) {
           var m = musicAssets[i];
           var mName = m.name;
-          if (!/\.flac$/i.test(mName)) continue;
-          var prefix = mName.replace(/\.flac$/i, '');
+          var extMatch = mName.match(/\.(flac|mp3)$/i);
+          if (!extMatch) continue;
+          var prefix = mName.replace(/\.(flac|mp3)$/i, '');
+          var ext = extMatch[1].toLowerCase();
+          if (!prefixMap[prefix] || ext === 'mp3') {
+            prefixMap[prefix] = ext;
+          }
+        }
+
+        var pairs = [];
+        var keys = Object.keys(prefixMap).sort();
+        for (var k = 0; k < keys.length; k++) {
+          var prefix = keys[k];
+          var ext = prefixMap[prefix];
           var prefixLower = prefix.toLowerCase();
-
-          var lrcUrl = './music/' + prefixLower + '.lrc';
-
-          var coverUrl = './music/' + prefix + '.jpg';
-
           var info = musicMap[prefix] || { title: prefix, artist: 'Jay Chou' };
 
           pairs.push({
             name: info.title,
             artist: info.artist,
             prefix: prefix,
-            musicUrl: m.browser_download_url,
-            lrcUrl: lrcUrl,
-            coverUrl: coverUrl
+            musicUrl: './music/' + prefixLower + '.' + ext + '?t=' + Date.now(),
+            lrcUrl: './music/' + prefixLower + '.lrc?t=' + Date.now(),
+            coverUrl: './music/' + prefix + '.jpg?t=' + Date.now()
           });
         }
         return pairs;
       }
 
       function initMusic() {
-        Promise.all([
-          fetchReleaseAssets(MUSIC_API),
-          fetchReleaseAssets(COVERS_API)
-        ]).then(function (results) {
-          var musicAssets = results[0];
-          var coverAssets = results[1];
-          var tracks = pairAllAssets(musicAssets, coverAssets);
+        fetchReleaseAssets(MUSIC_API)
+          .then(function (musicAssets) {
+          var tracks = pairAllAssets(musicAssets);
 
           if (tracks.length === 0) {
             console.warn('未匹配到任何音乐文件');
             return;
           }
 
-          var now = Date.now();
           var audioList = [];
           for (var n = 0; n < tracks.length; n++) {
             var t = tracks[n];
             audioList.push({
               name: t.name,
               artist: t.artist,
-              url: t.musicUrl + '?t=' + now,
-              lrc: t.lrcUrl + '?t=' + now,
-              cover: t.coverUrl + '?t=' + now
+              url: t.musicUrl,
+              lrc: t.lrcUrl,
+              cover: t.coverUrl
             });
           }
 
@@ -243,7 +245,7 @@
             container: document.getElementById('aplayer'),
             fixed: true,
             lrcType: 3,
-            autoplay: true,
+            autoplay: false,
             order: 'random',
             theme: '#2980b9',
             audio: audioList
