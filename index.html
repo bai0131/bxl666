@@ -182,64 +182,76 @@
           });
       }
 
-      function pairAllAssets(musicAssets) {
-        var pairs = [];
-        for (var i = 0; i < musicAssets.length; i++) {
-          var m = musicAssets[i];
-          var mName = m.name;
-          if (!/\.flac$/i.test(mName)) continue;
-          var prefix = mName.replace(/\.flac$/i, '');
-          var prefixLower = prefix.toLowerCase();
-          var info = musicMap[prefix] || { title: prefix, artist: 'Jay Chou' };
-
-          pairs.push({
-            name: info.title,
-            artist: info.artist,
-            musicUrl: m.browser_download_url,
-            lrcUrl: './music/' + prefixLower + '.lrc',
-            coverUrl: './music/' + prefix + '.jpg'
+      function buildAudioList(tracks) {
+        var now = Date.now();
+        var audioList = [];
+        for (var n = 0; n < tracks.length; n++) {
+          var t = tracks[n];
+          audioList.push({
+            name: t.name,
+            artist: t.artist,
+            url: t.musicUrl + '?t=' + now,
+            lrc: t.lrcUrl + '?t=' + now,
+            cover: t.coverUrl + '?t=' + now
           });
         }
-        return pairs;
+        return audioList;
+      }
+
+      function initPlayer(audioList) {
+        if (audioList.length === 0) {
+          console.warn('未匹配到任何音乐文件');
+          return;
+        }
+        console.log('APlayer audio 数组:', JSON.stringify(audioList, null, 2));
+        new APlayer({
+          container: document.getElementById('aplayer'),
+          fixed: true,
+          lrcType: 3,
+          autoplay: false,
+          order: 'random',
+          theme: '#2980b9',
+          audio: audioList
+        });
       }
 
       function initMusic() {
         fetchReleaseAssets(MUSIC_API)
           .then(function (musicAssets) {
-          var tracks = pairAllAssets(musicAssets);
-
-          if (tracks.length === 0) {
-            console.warn('未匹配到任何音乐文件');
-            return;
-          }
-
-          var now = Date.now();
-          var audioList = [];
-          for (var n = 0; n < tracks.length; n++) {
-            var t = tracks[n];
-            audioList.push({
-              name: t.name,
-              artist: t.artist,
-              url: t.musicUrl + '?t=' + now,
-              lrc: t.lrcUrl + '?t=' + now,
-              cover: t.coverUrl + '?t=' + now
-            });
-          }
-
-          console.log('APlayer audio 数组:', JSON.stringify(audioList, null, 2));
-
-          new APlayer({
-            container: document.getElementById('aplayer'),
-            fixed: true,
-            lrcType: 3,
-            autoplay: false,
-            order: 'random',
-            theme: '#2980b9',
-            audio: audioList
+            var pairs = [];
+            for (var i = 0; i < musicAssets.length; i++) {
+              var mName = musicAssets[i].name;
+              if (!/\.flac$/i.test(mName)) continue;
+              var prefix = mName.replace(/\.flac$/i, '');
+              var prefixLower = prefix.toLowerCase();
+              var info = musicMap[prefix] || { title: prefix, artist: 'Jay Chou' };
+              pairs.push({
+                name: info.title,
+                artist: info.artist,
+                musicUrl: './music/' + prefixLower + '.flac',
+                lrcUrl: './music/' + prefixLower + '.lrc',
+                coverUrl: './music/' + prefix + '.jpg'
+              });
+            }
+            initPlayer(buildAudioList(pairs));
+          })
+          .catch(function () {
+            console.warn('GitHub API 失败，使用本地 musicMap 兜底');
+            var pairs = [];
+            var keys = Object.keys(musicMap);
+            for (var k = 0; k < keys.length; k++) {
+              var prefix = keys[k];
+              var info = musicMap[prefix];
+              pairs.push({
+                name: info.title,
+                artist: info.artist,
+                musicUrl: './music/' + prefix.toLowerCase() + '.flac',
+                lrcUrl: './music/' + prefix.toLowerCase() + '.lrc',
+                coverUrl: './music/' + prefix + '.jpg'
+              });
+            }
+            initPlayer(buildAudioList(pairs));
           });
-        }).catch(function (err) {
-          console.error('APlayer 初始化失败:', err);
-        });
       }
 
       initMusic();
