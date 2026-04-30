@@ -218,12 +218,24 @@
       function initMusic() {
         fetchReleaseAssets(MUSIC_API)
           .then(function (musicAssets) {
-            var pairs = [];
+            var prefixMap = {};
             for (var i = 0; i < musicAssets.length; i++) {
               var m = musicAssets[i];
               var mName = m.name;
-              if (!/\.flac$/i.test(mName)) continue;
-              var prefix = mName.replace(/\.flac$/i, '');
+              var match = mName.match(/\.(flac|mp3)$/i);
+              if (!match) continue;
+              var prefix = mName.replace(/\.(flac|mp3)$/i, '');
+              var ext = match[1].toLowerCase();
+              if (!prefixMap[prefix] || ext === 'mp3') {
+                prefixMap[prefix] = m;
+              }
+            }
+
+            var prefixes = Object.keys(prefixMap).sort();
+            var pairs = [];
+            for (var p = 0; p < prefixes.length; p++) {
+              var prefix = prefixes[p];
+              var m = prefixMap[prefix];
               var prefixLower = prefix.toLowerCase();
               var info = musicMap[prefix] || { title: prefix, artist: 'Jay Chou' };
               pairs.push({
@@ -704,7 +716,5 @@
       });
     })();
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/eruda@3.4.1/eruda.min.js"></script>
-  <script>if(typeof eruda!=='undefined')eruda.init();</script>
 </body>
 </html>
