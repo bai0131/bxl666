@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bai • 个人播客</title>
+  <link rel="stylesheet" href="./style.css?v=4">
+  <link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+</head>
+<body>
+
+  <!-- 全屏欢迎遮罩 -->
+  <div id="welcome-overlay">
+    <h1>Bai</h1>
+    <p>Welcome to my digital garden.</p>
+    <button id="enter-btn">点击进入</button>
+  </div>
+
+  <!-- 暗黑模式切换 -->
+  <button class="theme-toggle" id="themeToggle" title="切换暗黑模式">
+    <span class="icon-sun">☀️</span>
+    <span class="icon-moon">🌙</span>
+  </button>
+
+  <!-- 音乐播放 -->
+  <button id="bgm-toggle" title="音乐控制">▶️</button>
+  <button id="bgm-skip" title="下一首">⏭️</button>
+
+  <!-- 主容器 -->
+  <main class="container">
+    <!-- ====== 频道头部 ====== -->
+    <header class="channel-header">
+      <img
+        class="channel-avatar"
+        src="./tx.jpg"
+        alt="头像"
+        onerror="this.style.display='none'"
+      >
+      <h1 class="channel-name">Bai</h1>
+      <p class="channel-handle">@baixinle · 开发者 & CS高手</p>
+      <p class="channel-bio">
+        你说你会哭，不是因为在乎。
+      </p>
+    </header>
+
+    <hr class="divider">
+
+    <!-- ====== 视图容器 ====== -->
+
+    <!-- 列表视图 -->
+    <div id="list-view">
+      <!-- 类型筛选 + 计数 -->
+      <div class="episodes-header">
+        <span class="episodes-count" id="episodesCount">加载中…</span>
+        <div class="type-filters" id="typeFilters"></div>
+      </div>
+
+      <!-- 剧集列表 -->
+      <div class="episodes-list" id="episodesList">
+        <div class="loader">
+          <div class="loader__spinner"></div>
+        </div>
+      </div>
+
+      <!-- 阅读量 -->
+      <div class="pv-container">
+        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+        <span>点击量：<span class="waline-pageview-count" data-path="/">0</span></span>
+      </div>
+
+      <!-- 留言板 -->
+      <div id="waline"></div>
+
+      <!-- 页脚 -->
+      <footer class="footer">
+        <p>© 2026 bai.fm · 数据来源 json</p>
+      </footer>
+    </div>
+
+  </main>
+
+  <!-- 详情视图 -->
+  <div id="detail-view" class="hidden">
+    <button id="back-btn" class="detail-back" title="返回">←</button>
+    <div id="detail-content"></div>
+  </div>
+
+  <!-- 背景音乐 -->
+  <audio id="bgm-audio"></audio>
+
+  <!-- 歌词显示 -->
+  <div id="lyrics-display" class="hidden">🎵 正在加载歌词...</div>
+
+  <script>
+    (function () {
+      /* ===========================================================
+         DOM 引用
+         =========================================================== */
+      var themeToggle     = document.getElementById('themeToggle');
+      var typeFilters     = document.getElementById('typeFilters');
+      var episodesList    = document.getElementById('episodesList');
+      var episodesCount   = document.getElementById('episodesCount');
+      var walineEl       = document.getElementById('waline');
+
+      /* ===========================================================
+         SPA 路由状态
+         =========================================================== */
+      var currentSPAPage = 'home';
+      var walineInstance = null;
+      var pendingWalinePath = null;
+      var spaHasRendered = false;
+
+      function updateWalinePath(path) {
+        if (walineInstance && walineInstance.update) {
+          walineInstance.update({ path: path });
+        } else {
+          pendingWalinePath = path;
+        }
+      }
+
+      /* ===========================================================
+         全局状态
+         =========================================================== */
+      var allPosts   = [];
+      var activeType = 'all';   // 'all' | 'file' | 'gallery' | 'text'
+
+      /* ===========================================================
+         暗黑模式
+         =========================================================== */
+      function initTheme() {
+        if (localStorage.getItem('theme') === 'dark') {
+          document.body.classList.add('dark');
+        }
+      }
+
+      themeToggle.addEventListener('click', function () {
+        document.body.classList.toggle('dark');
+        var isDark = document.body.classList.contains('dark');
+        localStorage.setItem('theme', isDark ? 'dark' : 'light');
+      });
+
+      initTheme();
+
+      /* ===========================================================
+         播放列表
+         =========================================================== */
+      var playlist = [
+        { audio: './music/bgm1.flac', lrc: './music/bgm1.lrc' },
+        { audio: './music/bgm2.flac', lrc: './music/bgm2.lrc' },
+        { audio: './music/bgm3.flac', lrc: './music/bgm3.lrc' }
+      ];
+      var currentTrackIndex = -1;
+
+      /* ===========================================================
+         背景音乐控制
+         =========================================================== */
+      var bgmToggle = document.getElementById('bgm-toggle');
+      var bgmSkip   = document.getElementById('bgm-skip');
+      var bgmAudio  = document.getElementById('bgm-audio');
+      var lyricsDisplay = document.getElementById('lyrics-display');
+
+      bgmToggle.addEventListener('click', function () {
+        if (bgmAudio.paused) {
+          bgmAudio.play();
+          bgmToggle.textContent = '⏸️';
+        } else {
+          bgmAudio.pause();
+          bgmToggle.textContent = '▶️';
+        }
+      });
+
+      /* ---- 切歌 ---- */
+      bgmSkip.addEventListener('click', function () {
+        loadRandomTrack();
+      });
+
+      /* ---- 一首播完自动切下一首 ---- */
+      bgmAudio.addEventListener('ended', function () {
+        loadRandomTrack();
+      });
+
+      /* ===========================================================
+         LRC 歌词解析 & 同步
+         =========================================================== */
+      var parsedLyrics = [];
+      var currentLyricIndex = -1;
+
+      function loadLyrics(lrcPath) {
+        parsedLyrics = [];
+        currentLyricIndex = -1;
+        lyricsDisplay.textContent = '🎵 正在加载新曲目...';
+
+        console.log('正在尝试从 ' + lrcPath + ' 获取歌词...');
+        fetch(lrcPath)
+          .then(function (response) {
+            if (!response.ok) throw new Error('LRC 文件加载失败');
+            console.log('歌词文件获取成功，开始解析...');
+            return response.text();
+          })
+          .then(function (text) {
+            var lines = text.split('\n');
+            var re = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
+            for (var i = 0; i < lines.length; i++) {
+              var match = lines[i].match(re);
+              if (!match) continue;
+              var mins = parseInt(match[1], 10);
+              var secs = parseInt(match[2], 10);
+              var msStr = match[3];
+              var ms = parseInt(msStr, 10) / (msStr.length === 2 ? 100 : 1000);
+              var time = mins * 60 + secs + ms;
+              var text = match[4].trim();
+              if (text) {
+                parsedLyrics.push({ time: time, text: text });
+              }
+            }
+            parsedLyrics.sort(function (a, b) { return a.time - b.time; });
+            console.log('歌词解析完成，共 ' + parsedLyrics.length + ' 行');
+          })
+          .catch(function (err) {
+            console.error('歌词加载失败:', err);
+            lyricsDisplay.textContent = '🎵 未找到歌词文件';
+          });
+      }
+
+      /* ---- 随机加载一首歌 ---- */
+      function loadRandomTrack() {
+        var idx;
+        do {
+          idx = Math.floor(Math.random() * playlist.length);
+        } while (idx === currentTrackIndex && playlist.length > 1);
+
+        currentTrackIndex = idx;
+        var track = playlist[idx];
+
+        bgmAudio.src = track.audio;
+        loadLyrics(track.lrc);
+
+        bgmAudio.play().then(function () {
+          bgmToggle.textContent = '⏸️';
+        }).catch(function (err) {
+          console.warn('音乐播放被浏览器拦截:', err);
+        });
+      }
+
+      bgmAudio.addEventListener('timeupdate', function () {
+        if (parsedLyrics.length === 0) return;
+        var ct = bgmAudio.currentTime;
+        var idx = -1;
+        for (var i = 0; i < parsedLyrics.length; i++) {
+          if (parsedLyrics[i].time <= ct) {
+            idx = i;
+          } else {
+            break;
+          }
+        }
+        if (idx !== currentLyricIndex) {
+          currentLyricIndex = idx;
+          lyricsDisplay.textContent = '🎵 ' + (idx >= 0 ? parsedLyrics[idx].text : '');
+        }
+      });
+
+      /* ===========================================================
+         全屏欢迎遮罩 —— 点击进入触发播放
+         =========================================================== */
+      var welcomeOverlay = document.getElementById('welcome-overlay');
+      var enterBtn       = document.getElementById('enter-btn');
+
+      enterBtn.addEventListener('click', function () {
+        // 遮罩淡出
+        welcomeOverlay.classList.add('fade-out');
+        // 加载随机曲目并播放
+        loadRandomTrack();
+        // 显示歌词
+        lyricsDisplay.classList.remove('hidden');
+      });
+
+      if (sessionStorage.getItem('blog_visited')) {
+        welcomeOverlay.classList.add('fade-out');
+        loadRandomTrack();
+        lyricsDisplay.classList.remove('hidden');
+      }
+
+      /* ===========================================================
+         加载 posts.json
+         =========================================================== */
+      function loadPosts() {
+        var xhr = new XMLHttpRequest();
+        xhr.open('GET', './posts.json', true);
+        xhr.onload = function () {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              allPosts = JSON.parse(xhr.responseText);
+            } catch (e) {
+              showError('JSON 解析失败，请检查 posts.json 格式。');
+              return;
+            }
+            // 按日期倒序排列
+            allPosts.sort(function (a, b) {
+              return new Date(b.date) - new Date(a.date);
+            });
+            initTypeFilters();
+            if (!spaHasRendered) {
+              render();
+            }
+          } else {
+            showError('无法加载 posts.json，请确保文件存在。');
+          }
+        };
+        xhr.onerror = function () {
+          showError('网络错误，无法加载数据。');
+        };
+        xhr.send();
+      }
+
+      function showError(msg) {
+        episodesList.innerHTML =
+          '<div class="empty-state">' +
+          '<div class="empty-state__icon">⚠️</div>' +
+          '<p class="empty-state__text">' + msg + '</p>' +
+          '</div>';
+        console.error(msg);
+      }
+
+      /* ===========================================================
+         类型筛选标签
+         =========================================================== */
+      function initTypeFilters() {
+        var types = ['all', 'software', 'games', 'system'];
+        var labels = { all: '全部', software: '💻 软件', games: '🎮 游戏', system: '⚙️ 系统' };
+
+        var html = '';
+        for (var i = 0; i < types.length; i++) {
+          html +=
+            '<button class="type-filter' + (types[i] === activeType ? ' active' : '') +
+            '" data-type="' + types[i] + '">' + labels[types[i]] + '</button>';
+        }
+        typeFilters.innerHTML = html;
+
+        // 绑定点击事件
+        typeFilters.querySelectorAll('.type-filter').forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            activeType = this.getAttribute('data-type');
+            typeFilters.querySelectorAll('.type-filter').forEach(function (b) {
+              b.classList.remove('active');
+            });
+            this.classList.add('active');
+            render();
+          });
+        });
+      }
+
+      /* ===========================================================
+         获取过滤后的帖子
+         =========================================================== */
+      function getFilteredPosts() {
+        if (activeType === 'all') return allPosts;
+        return allPosts.filter(function (p) { return p.category === activeType; });
+      }
+
+      /* ===========================================================
+         整体渲染
+         =========================================================== */
+      function render() {
+        var posts = getFilteredPosts();
+
+        // 更新计数器
+        episodesCount.textContent = '📻 ' + posts.length + ' 期内容';
+
+        // 空状态
+        if (posts.length === 0) {
+          episodesList.innerHTML =
+            '<div class="empty-state">' +
+            '<div class="empty-state__icon">🎙️</div>' +
+            '<p class="empty-state__text">暂无该类型的内容</p>' +
+            '</div>';
+          return;
+        }
+
+        // 构建每期卡片
+        var html = '';
+        for (var i = 0; i < posts.length; i++) {
+          html += buildEpisodeHTML(posts[i]);
+        }
+        episodesList.innerHTML = html;
+
+        // 绑定交互事件
+        bindGalleryClick();
+        bindCardClick();
+      }
+
+      /* ===========================================================
+         构建单集 HTML
+         =========================================================== */
+      function buildEpisodeHTML(post) {
+        // 交互区域
+        var interactiveHTML = '';
+        var galleryNoteHTML = '';
+        switch (post.type) {
+          case 'file':
+            interactiveHTML = buildFileButtons(post.downloads);
+            break;
+          case 'gallery':
+            interactiveHTML = buildGalleryStrip(post.id, post.images);
+            // 如果画廊帖子有 content，显示为说明文字
+            if (post.content) {
+              galleryNoteHTML = '<p class="episode-gallery-note">' + esc(post.content) + '</p>';
+            }
+            break;
+        }
+
+        // 封面图：有 cover 则显示，无则生成纯色占位
+        var coverSrc = post.cover || (
+          'data:image/svg+xml,' +
+          encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">' +
+          '<rect fill="#e0dbd0" width="200" height="200"/><text x="100" y="110" text-anchor="middle" ' +
+          'font-size="40" fill="#aaa">📦</text></svg>')
+        );
+
+        return (
+          '<article class="episode-card" data-post-id="' + esc(post.id) + '">' +
+          '<img class="episode-cover" src="' + coverSrc +
+          '" alt="封面" loading="lazy">' +
+          '<div class="episode-body">' +
+          '<time class="episode-date">' + esc(formatDate(post.date)) + '</time>' +
+          '<h2 class="episode-title">' + esc(post.title) + '</h2>' +
+          '<p class="episode-summary">' + esc(post.summary) + '</p>' +
+          galleryNoteHTML +
+          '<div class="episode-interactive">' + interactiveHTML + '</div>' +
+          '</div>' +
+          '</article>'
+        );
+      }
+
+      /* ---- 格式化日期 ---- */
+      function formatDate(dateStr) {
+        var d = new Date(dateStr);
+        var year = d.getFullYear();
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+        var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+        var wd = weekdays[d.getDay()];
+        return year + '年' + month + '月' + day + '日 · 星期' + wd;
+      }
+
+      /* ===========================================================
+         type: file —— 下载按钮列表
+         =========================================================== */
+      function buildFileButtons(files) {
+        if (!files || files.length === 0) return '';
+        var html = '<div class="file-buttons">';
+        for (var i = 0; i < files.length; i++) {
+          var f = files[i];
+          html +=
+            '<a class="file-btn" href="' + esc(f.url) +
+            '" target="_blank" rel="noopener noreferrer">' +
+            '<span class="file-btn__icon">' + (f.icon || '📎') + '</span>' +
+            esc(f.name) +
+            '</a>';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      /* ===========================================================
+         type: gallery —— 横向缩略图列表
+         =========================================================== */
+      function buildGalleryStrip(postId, images) {
+        if (!images || images.length === 0) return '';
+        var html = '<div class="gallery-strip" data-post-id="' + postId + '">';
+        for (var i = 0; i < images.length; i++) {
+          html +=
+            '<img class="gallery-thumb" src="' + esc(images[i]) +
+            '" alt="缩略图 ' + (i + 1) + '" loading="lazy" ' +
+            'data-full="' + esc(images[i]) + '" data-index="' + i + '">';
+        }
+        html += '</div>';
+        return html;
+      }
+
+      /* ---- 画廊缩略图点击 → 灯箱 ---- */
+      function bindGalleryClick() {
+        episodesList.querySelectorAll('.gallery-thumb').forEach(function (thumb) {
+          thumb.addEventListener('click', function (e) {
+            e.stopPropagation();
+            openLightbox(this.getAttribute('data-full'));
+          });
+        });
+      }
+
+      /* ---- 灯箱 ---- */
+      function openLightbox(src) {
+        // 移除已有灯箱
+        var existing = document.querySelector('.lightbox');
+        if (existing) existing.remove();
+
+        var overlay = document.createElement('div');
+        overlay.className = 'lightbox';
+
+        var img = document.createElement('img');
+        img.className = 'lightbox__img';
+        img.src = src;
+        img.alt = '查看大图';
+
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'lightbox__close';
+        closeBtn.textContent = '✕';
+
+        overlay.appendChild(img);
+        overlay.appendChild(closeBtn);
+        document.body.appendChild(overlay);
+
+        // 点击遮罩或关闭按钮 → 关闭
+        function close() {
+          overlay.remove();
+          document.removeEventListener('keydown', onKey);
+        }
+
+        overlay.addEventListener('click', function (e) {
+          if (e.target === overlay || e.target === closeBtn) close();
+        });
+
+        function onKey(e) {
+          if (e.key === 'Escape') close();
+        }
+        document.addEventListener('keydown', onKey);
+      }
+
+      /* ===========================================================
+         type: text —— 阅读全文 / 收起
+         =========================================================== */
+      function buildTextButton(postId) {
+        return (
+          '<button class="text-expand-btn" data-post-id="' + postId + '">' +
+          '📖 阅读全文' +
+          '</button>' +
+          '<div class="text-full-content" data-post-id="' + postId +
+          '" style="display:none;"></div>'
+        );
+      }
+
+      function bindTextExpand() {
+        episodesList.querySelectorAll('.text-expand-btn').forEach(function (btn) {
+          btn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            var postId = this.getAttribute('data-post-id');
+            var contentDiv = episodesList.querySelector(
+              '.text-full-content[data-post-id="' + postId + '"]'
+            );
+            toggleTextPanel(this, contentDiv, postId);
+          });
+        });
+      }
+
+      function toggleTextPanel(btn, contentDiv, postId) {
+        var isVisible = contentDiv.style.display !== 'none';
+
+        if (isVisible) {
+          // 收起
+          contentDiv.style.display = 'none';
+          btn.innerHTML = '📖 阅读全文';
+          // 移除已添加的收起按钮
+          var collapseBtn = contentDiv.querySelector('.text-collapse-btn');
+          if (collapseBtn) collapseBtn.remove();
+        } else {
+          // 展开 —— 查找对应帖子的全文内容
+          var post = null;
+          for (var i = 0; i < allPosts.length; i++) {
+            if (allPosts[i].id === postId) { post = allPosts[i]; break; }
+          }
+          if (!post || !post.content) return;
+
+          contentDiv.innerHTML = formatMarkdownText(post.content) +
+            '<button class="text-collapse-btn">收起 ▲</button>';
+
+          contentDiv.style.display = 'block';
+          btn.innerHTML = '📕 收起全文';
+
+          // 绑定收起按钮
+          contentDiv.querySelector('.text-collapse-btn').addEventListener('click', function (e) {
+            e.stopPropagation();
+            toggleTextPanel(btn, contentDiv, postId);
+          });
+        }
+      }
+
+      /* ===========================================================
+         卡片点击 → 进入详情页
+         =========================================================== */
+      var listView   = document.getElementById('list-view');
+      var detailView = document.getElementById('detail-view');
+      var detailContent = document.getElementById('detail-content');
+      var backBtn    = document.getElementById('back-btn');
+
+      function bindCardClick() {
+        episodesList.querySelectorAll('.episode-card').forEach(function (card) {
+          card.addEventListener('click', function (e) {
+            // 不拦截：下载按钮、展开按钮、缩略图、灯箱关闭
+            if (e.target.closest('.file-btn') ||
+                e.target.closest('.text-expand-btn') ||
+                e.target.closest('.text-collapse-btn') ||
+                e.target.closest('.gallery-thumb') ||
+                e.target.closest('.lightbox')) {
+              return;
+            }
+            var postId = this.getAttribute('data-post-id');
+            showDetail(postId);
+          });
+        });
+      }
+
+      function showDetail(postId) {
+        var post = null;
+        for (var i = 0; i < allPosts.length; i++) {
+          if (allPosts[i].id === postId) { post = allPosts[i]; break; }
+        }
+        if (!post) return;
+
+        // 构建画廊 HTML
+        var galleryHTML = '';
+        if (post.images && post.images.length > 0) {
+          galleryHTML = '<div class="detail-paper__gallery">';
+          for (var g = 0; g < post.images.length; g++) {
+            galleryHTML +=
+              '<img class="detail-paper__gallery-img" src="' + esc(post.images[g]) +
+              '" alt="图片 ' + (g + 1) + '" loading="lazy" ' +
+              'data-full="' + esc(post.images[g]) + '">';
+          }
+          galleryHTML += '</div>';
+        }
+
+        // 构建下载区 HTML
+        var downloadsHTML = '';
+        if (post.downloads && post.downloads.length > 0) {
+          downloadsHTML += '<div class="detail-paper__downloads-title">📦 下载资源</div>';
+          downloadsHTML += '<div class="detail-paper__downloads">';
+          for (var d = 0; d < post.downloads.length; d++) {
+            var f = post.downloads[d];
+            downloadsHTML +=
+              '<a class="detail-paper__dl-btn" href="' + esc(f.url) +
+              '" target="_blank" rel="noopener noreferrer">' +
+              '<span>' + (f.icon || '📎') + '</span>' + esc(f.name) + '</a>';
+          }
+          downloadsHTML += '</div>';
+        }
+
+        // 分类标签
+        var categoryLabels = { software: '💻 软件', games: '🎮 游戏', system: '⚙️ 系统' };
+        var catLabel = categoryLabels[post.category] || post.category || '';
+
+        detailContent.innerHTML =
+          '<div class="detail-paper">' +
+          '  <h1 class="detail-paper__title">' + esc(post.title) + '</h1>' +
+          '  <div class="detail-paper__meta">' +
+          '    <span class="detail-paper__date">' + esc(formatDate(post.date)) + '</span>' +
+          '    <span class="detail-paper__tag">' + catLabel + '</span>' +
+          '  </div>' +
+          galleryHTML +
+          '  <div class="detail-paper__body">' +
+          formatMarkdownText(post.content || post.summary || '') +
+          '  </div>' +
+          downloadsHTML +
+          '</div>';
+
+        // 绑定画廊缩略图
+        detailContent.querySelectorAll('.detail-paper__gallery-img').forEach(function (thumb) {
+          thumb.addEventListener('click', function (e) {
+            e.stopPropagation();
+            openLightbox(this.getAttribute('data-full'));
+          });
+        });
+
+        // 视图切换
+        listView.classList.add('fade-out');
+        detailView.classList.remove('hidden');
+        walineEl.style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+      }
+
+      backBtn.addEventListener('click', function () {
+        navigateHome();
+      });
+
+      /* ---- Markdown 渲染（marked.js + highlight.js） ---- */
+      marked.setOptions({
+        highlight: function (code, lang) {
+          if (lang && hljs.getLanguage(lang)) {
+            try {
+              return hljs.highlight(code, { language: lang }).value;
+            } catch (e) { /* fall through */ }
+          }
+          return code;
+        },
+        breaks: true,
+        gfm: true
+      });
+
+      function formatMarkdownText(text) {
+        return marked.parse(text);
+      }
+
+      async function loadArticle(mdFilePath, slug) {
+        try {
+          var response = await fetch(mdFilePath);
+          if (!response.ok) {
+            throw new Error('HTTP ' + response.status);
+          }
+          var text = await response.text();
+          var html =
+            '<div class="article-glass">' +
+            '<a class="article-back-link" href="javascript:void(0)">← 返回文章列表</a>' +
+            marked.parse(text) +
+            '</div>';
+          episodesList.innerHTML = html;
+          hljs.highlightAll();
+          spaHasRendered = true;
+          walineEl.style.display = '';
+
+          var backLink = episodesList.querySelector('.article-back-link');
+          if (backLink) {
+            backLink.addEventListener('click', function (e) {
+              e.preventDefault();
+              navigateHome();
+            });
+          }
+
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        } catch (err) {
+          episodesList.innerHTML =
+            '<div class="article-glass">' +
+            '<a class="article-back-link" href="javascript:void(0)">← 返回文章列表</a>' +
+            '<p style="color: #999; text-align: center; padding: 40px 0;">文章加载失败，请稍后再试。</p>' +
+            '</div>';
+
+          var backLink = episodesList.querySelector('.article-back-link');
+          if (backLink) {
+            backLink.addEventListener('click', function (e) {
+              e.preventDefault();
+              navigateHome();
+            });
+          }
+
+          console.error('文章加载失败:', err);
+        }
+      }
+
+      /* ===========================================================
+         工具函数：HTML 转义
+         =========================================================== */
+      function esc(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str || ''));
+        return div.innerHTML;
+      }
+
+      /* ===========================================================
+         前端路由
+         =========================================================== */
+      function getQueryParam(name) {
+        var url = window.location.search;
+        var params = new URLSearchParams(url);
+        return params.get(name);
+      }
+
+      var mdArticles = [
+        {
+          slug: 'hello-world',
+          title: 'Hello, World!',
+          date: '2026-04-30',
+          summary: '欢迎来到我的极客博客——内容与代码分离的 Markdown 渲染管线。'
+        }
+      ];
+
+      function renderArticleList() {
+        typeFilters.style.display = 'none';
+        episodesCount.style.display = 'none';
+        spaHasRendered = true;
+
+        var html =
+          '<div class="article-list-glass">' +
+          '  <h2 class="article-list__heading">📝 文章列表</h2>' +
+          '  <p class="article-list__sub">基于 Markdown + Fetch API 的极客工作流</p>';
+
+        for (var i = 0; i < mdArticles.length; i++) {
+          var a = mdArticles[i];
+          html +=
+            '<a class="article-list__link" href="/?p=' + esc(a.slug) + '" data-slug="' + esc(a.slug) + '">' +
+            '  <span class="article-list__title">' + esc(a.title) + '</span>' +
+            '  <span class="article-list__meta">' + esc(a.date) + ' · ' + esc(a.summary) + '</span>' +
+            '</a>';
+        }
+
+        html += '</div>';
+        episodesList.innerHTML = html;
+        walineEl.style.display = '';
+        detailView.classList.add('hidden');
+        window.scrollTo({ top: 0, behavior: 'instant' });
+
+        episodesList.querySelectorAll('.article-list__link').forEach(function (link) {
+          link.addEventListener('click', function (e) {
+            e.preventDefault();
+            var slug = this.getAttribute('data-slug');
+            if (slug) {
+              navigateToArticle(slug);
+            }
+          });
+        });
+      }
+
+      function navigateToArticle(slug) {
+        currentSPAPage = 'article';
+        history.pushState({ page: 'article', slug: slug }, '', '/?p=' + slug);
+        typeFilters.style.display = 'none';
+        episodesCount.style.display = 'none';
+        loadArticle('./posts/' + slug + '.md', slug);
+        updateWalinePath('/?p=' + slug);
+      }
+
+      function navigateHome() {
+        currentSPAPage = 'home';
+        history.pushState({ page: 'home' }, '', window.location.pathname);
+        renderArticleList();
+        updateWalinePath('/');
+      }
+
+      window.addEventListener('popstate', function (e) {
+        if (e.state && e.state.page === 'article' && e.state.slug) {
+          currentSPAPage = 'article';
+          typeFilters.style.display = 'none';
+          episodesCount.style.display = 'none';
+          loadArticle('./posts/' + e.state.slug + '.md', e.state.slug);
+          updateWalinePath('/?p=' + e.state.slug);
+        } else {
+          currentSPAPage = 'home';
+          renderArticleList();
+          updateWalinePath('/');
+        }
+      });
+
+      var routeParam = getQueryParam('p');
+
+      loadPosts();
+
+      if (routeParam) {
+        navigateToArticle(routeParam);
+      } else {
+        navigateHome();
+      }
+
+      /* ===========================================================
+         Waline 留言板初始化
+         =========================================================== */
+      import('https://unpkg.com/@waline/client@v2/dist/waline.mjs').then(function (mod) {
+        walineInstance = mod.init({
+          el: '#waline',
+          serverURL: 'https://bxl666.top',
+          dark: 'auto',
+          reaction: true,
+          login: 'disable',
+          requiredMeta: ['nick'],
+          pageview: true,
+          placeholder: '在这里留下你的足迹吧...'
+        });
+        if (pendingWalinePath && walineInstance.update) {
+          walineInstance.update({ path: pendingWalinePath });
+          pendingWalinePath = null;
+        }
+      }).catch(function (err) {
+        console.warn('Waline 加载失败:', err);
+      });
+    })();
+  </script>
+</body>
+</html>

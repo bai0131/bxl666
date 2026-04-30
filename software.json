@@ -1,0 +1,47 @@
+[
+  {
+    "id": 1,
+    "name": "Visual Studio Code",
+    "version": "1.98.2",
+    "category": "开发工具",
+    "description": "微软出品的免费开源代码编辑器，支持丰富的插件生态，前端开发首选。",
+    "long_desc": "Visual Studio Code 是微软开发的一款轻量级但功能强大的源代码编辑器，适用于 Windows、macOS 和 Linux 操作系统。它内置了对 JavaScript、TypeScript 和 Node.js 的支持，并为其他语言（如 C++、C#、Java、Python、PHP、Go）和运行时（如 .NET 和 Unity）提供了丰富的扩展生态系统。\n\nVS Code 的核心功能包括智能代码补全（IntelliSense）、内置 Git 版本控制、代码调试器、语法高亮、括号匹配、代码片段以及丰富的快捷键支持。其最大的特色是拥有一个繁荣的扩展市场，用户可以根据自己的需求安装各种插件来增强编辑器的功能，无论是主题美化、语言支持还是工具集成，都能轻松实现。",
+    "file_size": "89.5 MB",
+    "logo": "https://code.visualstudio.com/assets/images/code-stable.png",
+    "downloadUrl": "https://code.visualstudio.com/Download",
+    "screenshot_urls": [
+      "https://code.visualstudio.com/assets/home/home-screenshot-mac-2x-v2.png",
+      "https://code.visualstudio.com/assets/home/home-screenshot-win-2x-v2.png"
+    ]
+  },
+  {
+    "id": 2,
+    "name": "7-Zip",
+    "version": "24.09",
+    "category": "系统工具",
+    "description": "高压缩比的开源压缩解压工具，支持 7z、ZIP、RAR 等多种格式。",
+    "long_desc": "7-Zip 是一款完全免费的开源文件压缩与解压工具，由 Igor Pavlov 开发，是目前压缩比最高的压缩软件之一。它采用独有的 7z 格式，其压缩率比传统的 ZIP 格式高出 30%–70%。\n\n7-Zip 支持众多压缩格式，包括 7z、XZ、BZIP2、GZIP、TAR、ZIP 以及 WIM，同时可以解压 RAR、CAB、ISO、ARJ、LZH、CHM、MSI、WIM、Z、CPIO、RPM、DEB 和 NSIS 等格式。软件提供与 Windows 资源管理器无缝集成的右键菜单，操作简便。此外，7-Zip 还内置了文件管理器、命令行工具以及强大的 AES-256 位加密功能，非常适合需要高效压缩和安全归档的用户。",
+    "file_size": "1.5 MB",
+    "logo": "https://www.7-zip.org/7zi.png",
+    "downloadUrl": "https://www.7-zip.org/download.html",
+    "screenshot_urls": [
+      "https://www.7-zip.org/screenshot-1.png",
+      "https://www.7-zip.org/screenshot-2.png"
+    ]
+  },
+  {
+    "id": 3,
+    "name": "Steam",
+    "version": "2025.3",
+    "category": "游戏周边",
+    "description": "全球最大的 PC 游戏数字发行平台，拥有海量正版游戏和社区功能。",
+    "long_desc": "Steam 是 Valve 公司推出的全球最大的 PC 游戏数字发行平台，拥有数以万计的游戏作品，涵盖 3A 大作、独立游戏、免费游戏等各种类型。除了游戏购买和下载外，Steam 还提供了丰富的社交功能，包括好友聊天、游戏内覆盖界面、社区市场、创意工坊以及用户评测系统。\n\nSteam 定期举办大型促销活动（如夏季特卖、冬季特卖），让玩家以极低的价格入手心仪的游戏。平台还支持云存档、家庭共享、远程同乐等功能，极大地提升了玩家的游戏体验。对于游戏开发者而言，Steamworks 提供了一套完整的发布和运营工具，帮助开发者将作品推送给全球数百万玩家。",
+    "file_size": "3.2 MB",
+    "logo": "https://store.steampowered.com/favicon.ico",
+    "downloadUrl": "https://store.steampowered.com/about/",
+    "screenshot_urls": [
+      "https://cdn.cloudflare.steamstatic.com/store/about/store-homepage-hero.jpg",
+      "https://cdn.cloudflare.steamstatic.com/store/about/store-home-library.jpg"
+    ]
+  }
+]

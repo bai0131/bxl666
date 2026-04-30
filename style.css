@@ -1,0 +1,1806 @@
+/* ===========================================================
+   style.css — 亚克力毛玻璃播客风格
+   =========================================================== */
+
+/* ===========================================================
+   CSS 变量 —— 统一管理玻璃材质与主题色
+   =========================================================== */
+:root {
+  /* 玻璃面板 */
+  --glass-bg: rgba(255, 255, 255, 0.15);
+  --glass-bg-hover: rgba(255, 255, 255, 0.22);
+  --glass-border: rgba(255, 255, 255, 0.25);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  --glass-blur: blur(12px);
+
+  /* 文字 */
+  --text-primary: #fff;
+  --text-secondary: rgba(255, 255, 255, 0.82);
+  --text-tertiary: rgba(255, 255, 255, 0.58);
+  --text-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --text-shadow-strong: 0 1px 4px rgba(0, 0, 0, 0.5);
+
+  /* 强调色 */
+  --accent: #f4a261;
+  --accent-hover: #e09150;
+
+  /* 标签 */
+  --tag-bg: rgba(255, 255, 255, 0.15);
+  --tag-text: rgba(255, 255, 255, 0.85);
+  --tag-active-bg: var(--accent);
+  --tag-active-text: #1a1a1a;
+
+  /* 按钮 & 输入 */
+  --btn-glass-bg: rgba(255, 255, 255, 0.12);
+  --btn-glass-border: rgba(255, 255, 255, 0.18);
+  --btn-glass-hover: rgba(255, 255, 255, 0.2);
+
+  /* 分割线 */
+  --divider: rgba(255, 255, 255, 0.15);
+
+  /* 展开面板 */
+  --expand-bg: rgba(255, 255, 255, 0.08);
+
+  /* 灯箱 */
+  --overlay-bg: rgba(0, 0, 0, 0.88);
+
+  /* 缩略图底 */
+  --thumbnail-bg: rgba(255, 255, 255, 0.1);
+
+  /* 主题切换按钮 */
+  --toggle-bg: rgba(255, 255, 255, 0.18);
+  --toggle-border: rgba(255, 255, 255, 0.25);
+  --toggle-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+
+  /* 加载器 */
+  --spinner-track: rgba(255, 255, 255, 0.2);
+}
+
+body.dark {
+  --glass-bg: rgba(0, 0, 0, 0.3);
+  --glass-bg-hover: rgba(0, 0, 0, 0.38);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+  --glass-blur: blur(14px);
+
+  --text-primary: #ede7dd;
+  --text-secondary: rgba(237, 231, 221, 0.78);
+  --text-tertiary: rgba(237, 231, 221, 0.5);
+  --text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  --text-shadow-strong: 0 1px 4px rgba(0, 0, 0, 0.75);
+
+  --accent: #f4a261;
+  --accent-hover: #e09150;
+
+  --tag-bg: rgba(255, 255, 255, 0.08);
+  --tag-text: rgba(237, 231, 221, 0.75);
+  --tag-active-bg: var(--accent);
+  --tag-active-text: #1a1a1a;
+
+  --btn-glass-bg: rgba(255, 255, 255, 0.07);
+  --btn-glass-border: rgba(255, 255, 255, 0.1);
+  --btn-glass-hover: rgba(255, 255, 255, 0.14);
+
+  --divider: rgba(255, 255, 255, 0.08);
+
+  --expand-bg: rgba(0, 0, 0, 0.2);
+
+  --overlay-bg: rgba(0, 0, 0, 0.93);
+
+  --thumbnail-bg: rgba(255, 255, 255, 0.06);
+
+  --toggle-bg: rgba(0, 0, 0, 0.3);
+  --toggle-border: rgba(255, 255, 255, 0.12);
+  --toggle-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+
+  --spinner-track: rgba(255, 255, 255, 0.1);
+}
+
+/* ===========================================================
+   全局重置
+   =========================================================== */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* ===========================================================
+   全屏固定背景
+   =========================================================== */
+body {
+  position: relative;
+  min-height: 100vh;
+  background-image: url('./bg.png');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+  color: var(--text-primary);
+  line-height: 1.7;
+  transition: color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* 背景暗色叠加层 —— 确保浅色玻璃上的白字可读 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: rgba(0, 0, 0, 0.28);
+  pointer-events: none;
+}
+
+body.dark::before {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+/* ===========================================================
+   主容器 —— 最大宽度 800px 居中
+   =========================================================== */
+.container {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 48px 24px 80px;
+}
+
+/* ===========================================================
+   亚克力主题切换按钮
+   =========================================================== */
+.theme-toggle {
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 100;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  box-shadow: var(--toggle-shadow);
+  cursor: pointer;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.12);
+  background: var(--glass-bg-hover);
+}
+
+.theme-toggle .icon-sun,
+.theme-toggle .icon-moon {
+  position: absolute;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+body.dark .icon-sun {
+  opacity: 0;
+  transform: rotate(90deg) scale(0.5);
+}
+
+body:not(.dark) .icon-moon {
+  opacity: 0;
+  transform: rotate(-90deg) scale(0.5);
+}
+
+/* ===========================================================
+   频道头部 —— 亚克力玻璃面板
+   =========================================================== */
+.channel-header {
+  text-align: center;
+  padding: 36px 32px 40px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  box-shadow: var(--glass-shadow);
+  margin-bottom: 32px;
+}
+
+.channel-avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.channel-name {
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-bottom: 8px;
+  text-shadow: var(--text-shadow-strong);
+}
+
+.channel-handle {
+  font-size: 0.85rem;
+  color: var(--text-tertiary);
+  margin-bottom: 16px;
+  font-weight: 400;
+  text-shadow: var(--text-shadow);
+}
+
+.channel-bio {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.8;
+  text-shadow: var(--text-shadow);
+}
+
+/* BGM 音乐播放按钮 —— 固定在暗黑切换按钮下方 */
+#bgm-toggle {
+  position: fixed;
+  top: 76px;
+  right: 24px;
+  z-index: 100;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text-primary);
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.25s ease, box-shadow 0.25s ease;
+  text-shadow: var(--text-shadow);
+  box-shadow: var(--toggle-shadow);
+  padding: 0;
+}
+
+#bgm-toggle:hover {
+  transform: scale(1.1);
+  background: var(--glass-bg-hover);
+}
+
+#bgm-toggle:active {
+  transform: scale(0.95);
+}
+
+/* 切歌按钮 */
+#bgm-skip {
+  position: fixed;
+  top: 128px;
+  right: 24px;
+  z-index: 100;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  color: var(--text-primary);
+  font-size: 18px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.25s ease, box-shadow 0.25s ease;
+  text-shadow: var(--text-shadow);
+  box-shadow: var(--toggle-shadow);
+  padding: 0;
+}
+
+#bgm-skip:hover {
+  transform: scale(1.1);
+  background: var(--glass-bg-hover);
+}
+
+#bgm-skip:active {
+  transform: scale(0.95);
+}
+
+/* ===========================================================
+   视图切换 —— 淡入淡出
+   =========================================================== */
+#list-view,
+#detail-view {
+  transition: opacity 0.35s ease;
+}
+
+#list-view.fade-out,
+#detail-view.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#detail-view.hidden {
+  display: none;
+}
+
+/* ===========================================================
+   详情视图容器 —— 全屏覆盖层
+   =========================================================== */
+#detail-view {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 500;
+  overflow-y: auto;
+  padding: 0;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ===========================================================
+   返回按钮 —— 极简直角深色
+   =========================================================== */
+.detail-back {
+  position: fixed;
+  top: 20px;
+  left: 24px;
+  z-index: 998;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 0;
+  background: #1a1a1a;
+  color: #fff;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.2);
+}
+
+.detail-back:hover {
+  background: #333;
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.2);
+}
+
+/* ===========================================================
+   纸张容器 —— 从底部快速滑入
+   =========================================================== */
+.detail-paper {
+  max-width: 780px;
+  margin: 20px auto 60px;
+  background: #fdfdfd;
+  border-radius: 0 !important;
+  box-shadow: 10px 10px 0px rgba(0, 0, 0, 0.8);
+  padding: 48px 44px;
+  animation: paperSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif;
+}
+
+@keyframes paperSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(120px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- 纸张头部信息 ---- */
+.detail-paper__title {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #222;
+  line-height: 1.3;
+  margin-bottom: 10px;
+  letter-spacing: -0.02em;
+}
+
+.detail-paper__meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #1a1a1a;
+}
+
+.detail-paper__date {
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 400;
+}
+
+.detail-paper__tag {
+  display: inline-block;
+  padding: 3px 10px;
+  border: 1.5px solid #1a1a1a;
+  color: #1a1a1a;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* ---- 正文内容 ---- */
+.detail-paper__body {
+  font-size: 17px;
+  color: #222;
+  line-height: 1.9;
+  margin-bottom: 36px;
+  font-weight: 400;
+  text-align: justify;
+}
+
+.detail-paper__body h1 { font-size: 1.5rem; font-weight: 800; color: #111; margin: 32px 0 10px; padding-bottom: 6px; border-bottom: 2px solid #1a1a1a; }
+.detail-paper__body h2 { font-size: 1.2rem; font-weight: 700; color: #111; margin: 28px 0 10px; padding-bottom: 5px; border-bottom: 1.5px solid #1a1a1a; }
+.detail-paper__body h3 { font-size: 1.05rem; font-weight: 700; color: #222; margin: 22px 0 8px; }
+.detail-paper__body h4 { font-size: 1rem; font-weight: 700; color: #222; margin: 18px 0 6px; }
+.detail-paper__body h1:first-child,
+.detail-paper__body h2:first-child,
+.detail-paper__body h3:first-child { margin-top: 0; }
+
+.detail-paper__body p { margin-bottom: 10px; text-align: justify; }
+.detail-paper__body strong { color: #111; font-weight: 700; }
+.detail-paper__body em { color: #333; }
+
+.detail-paper__body a {
+  color: #1a1a1a;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: #888;
+}
+.detail-paper__body a:hover { color: #000; text-decoration-color: #1a1a1a; }
+
+/* 列表 */
+.detail-paper__body ul,
+.detail-paper__body ol { margin: 8px 0 14px; padding-left: 22px; }
+.detail-paper__body li { margin-bottom: 4px; line-height: 1.8; }
+
+/* 引用块 */
+.detail-paper__body blockquote {
+  margin: 16px 0;
+  padding: 12px 20px;
+  border-left: 4px solid #1a1a1a;
+  background: #f5f5f5;
+  color: #444;
+  font-style: italic;
+}
+.detail-paper__body blockquote p { margin-bottom: 4px; }
+
+/* 行内代码 */
+.detail-paper__body code {
+  padding: 2px 7px;
+  font-size: 0.88em;
+  background: #eee;
+  color: #c7254e;
+  border-radius: 3px;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  word-break: break-word;
+}
+
+/* 代码块 */
+.detail-paper__body pre {
+  margin: 16px 0 20px;
+  padding: 0;
+  border: 1px solid #ddd;
+  border-radius: 0;
+  overflow-x: auto;
+  background: #282c34;
+  font-size: 0.88rem;
+  line-height: 1.6;
+}
+
+.detail-paper__body pre code {
+  padding: 18px 22px;
+  display: block;
+  background: #282c34;
+  color: #abb2bf;
+  border-radius: 0;
+  font-size: 0.88rem;
+  white-space: pre;
+}
+
+/* 表格 */
+.detail-paper__body table { width: 100%; margin: 16px 0; border-collapse: collapse; font-size: 0.9rem; }
+.detail-paper__body th,
+.detail-paper__body td { padding: 10px 14px; border: 1px solid #ccc; text-align: left; }
+.detail-paper__body th { background: #eee; font-weight: 700; color: #111; }
+
+/* 分割线 */
+.detail-paper__body hr { margin: 28px 0; border: none; border-top: 1.5px solid #ccc; }
+
+/* 图片 */
+.detail-paper__body img { max-width: 100%; height: auto; margin: 12px 0; }
+
+/* ---- 画廊区 ---- */
+.detail-paper__gallery {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  margin-bottom: 32px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.detail-paper__gallery::-webkit-scrollbar {
+  height: 4px;
+}
+
+.detail-paper__gallery::-webkit-scrollbar-thumb {
+  background: #ccc;
+  border-radius: 0;
+}
+
+.detail-paper__gallery-img {
+  width: 140px;
+  height: 90px;
+  object-fit: cover;
+  flex-shrink: 0;
+  cursor: pointer;
+  scroll-snap-align: start;
+  border: 2px solid #1a1a1a;
+  transition: transform 0.2s ease;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.3);
+}
+
+.detail-paper__gallery-img:hover {
+  transform: scale(1.05);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.3);
+}
+
+/* ---- 下载区 ---- */
+.detail-paper__downloads-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 12px;
+  padding-bottom: 6px;
+  border-bottom: 1.5px solid #1a1a1a;
+}
+
+.detail-paper__downloads {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.detail-paper__dl-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border: 2px solid #1a1a1a;
+  background: #1a1a1a;
+  color: #fdfdfd;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  box-shadow: 4px 4px 0px rgba(0, 0, 0, 0.25);
+}
+
+.detail-paper__dl-btn:hover {
+  background: #fdfdfd;
+  color: #1a1a1a;
+  transform: translate(-1px, -1px);
+  box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.25);
+}
+
+.detail-paper__dl-btn span {
+  font-size: 0.95rem;
+}
+
+/* ===========================================================
+   文章容器 —— 亚克力毛玻璃（Markdown 动态渲染）
+   =========================================================== */
+/*
+   #detail-content 是动态文章的直接父容器。
+   必须让它撑满 #detail-view，否则子元素的 margin:auto 可能失效。
+*/
+#detail-content {
+  width: 100%;
+  min-height: 100vh;
+  display: block;
+}
+
+.article-glass {
+  display: block;
+  width: 100%;
+  max-width: 800px;
+  margin: 60px auto 80px;
+  padding: 40px 44px;
+  box-sizing: border-box;
+  position: relative;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+  line-height: 1.8;
+  font-size: 16px;
+  animation: paperSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ---- 文章内返回链接 ---- */
+.article-back-link {
+  display: inline-block;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  width: 100%;
+  color: rgba(255, 255, 255, 0.5);
+  text-decoration: none;
+  font-size: 0.88rem;
+  transition: color 0.2s ease;
+}
+.article-back-link:hover {
+  color: var(--accent);
+}
+
+/* ---- 标题 ---- */
+.article-glass h1 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #fff;
+  margin: 28px 0 16px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  letter-spacing: -0.02em;
+}
+.article-glass h1:first-child {
+  margin-top: 0;
+}
+
+.article-glass h2 {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #fff;
+  margin: 26px 0 12px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+.article-glass h2:first-child {
+  margin-top: 0;
+}
+
+.article-glass h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  margin: 22px 0 10px;
+}
+.article-glass h3:first-child {
+  margin-top: 0;
+}
+
+.article-glass h4 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 18px 0 8px;
+}
+.article-glass h4:first-child {
+  margin-top: 0;
+}
+
+/* ---- 段落 ---- */
+.article-glass p {
+  margin-bottom: 14px;
+  text-align: justify;
+}
+
+/* ---- 链接 ---- */
+.article-glass a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: rgba(244, 162, 97, 0.4);
+  transition: text-decoration-color 0.2s;
+}
+.article-glass a:hover {
+  text-decoration-color: var(--accent);
+}
+
+/* ---- 加粗 & 斜体 ---- */
+.article-glass strong {
+  color: #fff;
+  font-weight: 700;
+}
+.article-glass em {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+/* ---- 列表 ---- */
+.article-glass ul,
+.article-glass ol {
+  margin: 10px 0 16px;
+  padding-left: 24px;
+}
+.article-glass li {
+  margin-bottom: 6px;
+  line-height: 1.8;
+}
+.article-glass li::marker {
+  color: var(--accent);
+}
+.article-glass ul ul,
+.article-glass ol ol,
+.article-glass ul ol,
+.article-glass ol ul {
+  margin: 4px 0 6px;
+}
+
+/* ---- 引用块 ---- */
+.article-glass blockquote {
+  margin: 18px 0;
+  padding: 14px 22px;
+  border-left: 4px solid var(--accent);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 0 8px 8px 0;
+  color: rgba(255, 255, 255, 0.7);
+  font-style: italic;
+}
+.article-glass blockquote p {
+  margin-bottom: 6px;
+}
+
+/* ---- 行内代码 ---- */
+.article-glass code {
+  padding: 2px 8px;
+  font-size: 0.9em;
+  background: rgba(255, 255, 255, 0.1);
+  color: #f4a261;
+  border-radius: 4px;
+  font-family: "Consolas", "Monaco", "Courier New", monospace;
+  word-break: break-word;
+}
+
+/* ---- 代码块（highlight.js 渲染后） ---- */
+.article-glass pre {
+  margin: 18px 0 22px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  overflow-x: auto;
+  background: #1e1e1e;
+  font-size: 0.9rem;
+  line-height: 1.7;
+}
+.article-glass pre code {
+  padding: 18px 22px;
+  display: block;
+  background: transparent;
+  color: inherit;
+  border-radius: 0;
+  font-size: 0.9rem;
+  white-space: pre;
+}
+
+/* ---- 分割线 ---- */
+.article-glass hr {
+  margin: 30px 0;
+  border: none;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+/* ---- 图片 ---- */
+.article-glass img {
+  max-width: 100%;
+  height: auto;
+  margin: 14px 0;
+  border-radius: 6px;
+}
+
+/* ---- 表格 ---- */
+.article-glass table {
+  width: 100%;
+  margin: 18px 0;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.article-glass th,
+.article-glass td {
+  padding: 10px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  text-align: left;
+}
+.article-glass th {
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ---- 响应式 ---- */
+@media (max-width: 860px) {
+  .article-glass {
+    margin: 40px 16px 60px;
+    padding: 28px 24px;
+  }
+  .article-glass h1 {
+    font-size: 1.4rem;
+  }
+  .article-glass h2 {
+    font-size: 1.15rem;
+  }
+}
+
+/* ===========================================================
+   首页文章列表 —— 亚克力毛玻璃
+   =========================================================== */
+.article-list-glass {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 36px 40px;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: paperSlideUp 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.article-list__heading {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: -0.03em;
+}
+
+.article-list__sub {
+  font-size: 0.9rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-bottom: 28px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.article-list__link {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 16px 20px;
+  margin-bottom: 6px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.2s ease, transform 0.2s ease;
+  border: 1px solid transparent;
+}
+
+.article-list__link:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.1);
+  transform: translateX(4px);
+}
+
+.article-list__link:active {
+  transform: translateX(2px);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.article-list__title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.article-list__link:hover .article-list__title {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.article-list__meta {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.45);
+  line-height: 1.5;
+}
+
+@media (max-width: 860px) {
+  .article-list-glass {
+    margin: 0 16px;
+    padding: 24px 20px;
+  }
+
+  .article-list__heading {
+    font-size: 1.3rem;
+  }
+
+  .article-list__link {
+    padding: 14px 16px;
+  }
+}
+
+/* ===========================================================
+   全屏欢迎遮罩层
+   =========================================================== */
+#welcome-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  color: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+    "Microsoft YaHei", "Noto Sans SC", "Helvetica Neue", sans-serif;
+  transition: opacity 0.8s ease;
+}
+
+#welcome-overlay h1 {
+  font-size: 2.8rem;
+  font-weight: 800;
+  margin-bottom: 12px;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+  animation: welcomeFadeIn 0.6s ease;
+}
+
+#welcome-overlay p {
+  font-size: 1.05rem;
+  opacity: 0.8;
+  margin-bottom: 8px;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, 0.4);
+  animation: welcomeFadeIn 0.8s ease;
+}
+
+#enter-btn {
+  margin-top: 28px;
+  padding: 12px 32px;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  animation: welcomeFadeIn 1s ease;
+}
+
+#enter-btn:hover {
+  background: rgba(255, 255, 255, 0.28);
+  border-color: rgba(255, 255, 255, 0.45);
+  transform: scale(1.06);
+  box-shadow: 0 6px 28px rgba(0, 0, 0, 0.3);
+}
+
+#enter-btn:active {
+  transform: scale(0.97);
+}
+
+#welcome-overlay.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+@keyframes welcomeFadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===========================================================
+   歌词显示容器 —— 左下角亚克力面板
+   =========================================================== */
+#lyrics-display {
+  position: fixed;
+  bottom: 40px;
+  left: 40px;
+  z-index: 999;
+  max-width: 320px;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  color: #fff;
+  font-size: 0.92rem;
+  line-height: 1.6;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  transition: opacity 0.3s ease;
+  word-break: break-all;
+}
+
+#lyrics-display.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ===========================================================
+   分割线
+   =========================================================== */
+.divider {
+  border: none;
+  border-top: 1px solid var(--divider);
+  margin: 0 0 36px;
+}
+
+/* ===========================================================
+   剧集计数器 & 类型筛选
+   =========================================================== */
+.episodes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.episodes-count {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-shadow: var(--text-shadow);
+}
+
+.type-filters {
+  display: flex;
+  gap: 6px;
+}
+
+.type-filter {
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: 1px solid var(--glass-border);
+  background: var(--tag-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--tag-text);
+  font-size: 0.78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-shadow: var(--text-shadow);
+}
+
+.type-filter:hover {
+  background: var(--glass-bg-hover);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+.type-filter.active {
+  background: var(--accent);
+  color: #1a1a1a;
+  border-color: var(--accent);
+  text-shadow: none;
+  font-weight: 700;
+  box-shadow: 0 0 20px rgba(244, 162, 97, 0.45), 0 4px 16px rgba(244, 162, 97, 0.3);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transform: translateY(-1px);
+}
+
+/* ===========================================================
+   剧集列表
+   =========================================================== */
+.episodes-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ===========================================================
+   单集卡片 —— 亚克力玻璃
+   =========================================================== */
+.episode-card {
+  display: flex;
+  gap: 20px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: var(--glass-shadow);
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+}
+
+.episode-card:hover {
+  transform: translateY(-4px);
+  background: var(--glass-bg-hover);
+  box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.4);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+
+/* 封面图 */
+.episode-cover {
+  width: 100px;
+  height: 100px;
+  border-radius: 12px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--thumbnail-bg);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+}
+
+/* 右侧信息区 */
+.episode-body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.episode-date {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.03em;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  text-shadow: var(--text-shadow);
+}
+
+.episode-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  margin-bottom: 6px;
+  color: var(--text-primary);
+  text-shadow: var(--text-shadow-strong);
+}
+
+.episode-summary {
+  font-size: 0.88rem;
+  color: var(--text-secondary);
+  line-height: 1.7;
+  margin-bottom: 12px;
+  text-shadow: var(--text-shadow);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ===========================================================
+   交互区域通用
+   =========================================================== */
+.episode-interactive {
+  margin-top: auto;
+}
+
+/* 画廊说明文字 */
+.episode-gallery-note {
+  font-size: 0.82rem;
+  color: var(--text-tertiary);
+  line-height: 1.6;
+  margin-bottom: 10px;
+  font-style: italic;
+  text-shadow: var(--text-shadow);
+  white-space: pre-wrap;
+}
+
+/* ---- type: file —— 下载按钮 ---- */
+.file-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.file-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 10px;
+  border: 1px solid var(--btn-glass-border);
+  background: var(--btn-glass-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--text-primary);
+  font-size: 0.82rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-decoration: none;
+  text-shadow: var(--text-shadow);
+}
+
+.file-btn:hover {
+  background: var(--accent);
+  color: #1a1a1a;
+  border-color: var(--accent);
+  text-shadow: none;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(244, 162, 97, 0.35);
+}
+
+.file-btn__icon {
+  font-size: 0.9rem;
+}
+
+/* ---- type: gallery —— 缩略图列表 ---- */
+.gallery-strip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.gallery-strip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.gallery-strip::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 2px;
+}
+
+.gallery-strip::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.gallery-thumb {
+  width: 72px;
+  height: 72px;
+  border-radius: 10px;
+  object-fit: cover;
+  flex-shrink: 0;
+  cursor: pointer;
+  scroll-snap-align: start;
+  border: 1px solid var(--glass-border);
+  transition: transform 0.25s ease, opacity 0.25s ease, border-color 0.25s ease;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.gallery-thumb:hover {
+  transform: scale(1.08);
+  opacity: 0.95;
+  border-color: rgba(255, 255, 255, 0.45);
+}
+
+/* ---- 图片灯箱遮罩 ---- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  background: var(--overlay-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  animation: lightboxIn 0.2s ease;
+}
+
+@keyframes lightboxIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.lightbox__img {
+  max-width: 90vw;
+  max-height: 85vh;
+  border-radius: 14px;
+  box-shadow: 0 24px 80px rgba(0, 0, 0, 0.6);
+  animation: imgIn 0.3s ease;
+}
+
+@keyframes imgIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+.lightbox__close {
+  position: absolute;
+  top: 24px;
+  right: 24px;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #fff;
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.lightbox__close:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.08);
+}
+
+/* ---- type: text —— 阅读全文 ---- */
+.text-expand-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 20px;
+  border-radius: 10px;
+  border: 1px solid var(--glass-border);
+  background: var(--btn-glass-bg);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.text-expand-btn:hover {
+  background: var(--accent);
+  color: #1a1a1a;
+  border-color: var(--accent);
+  box-shadow: 0 6px 20px rgba(244, 162, 97, 0.3);
+}
+
+/* 展开后的全文面板 */
+.text-full-content {
+  margin-top: 14px;
+  padding: 20px;
+  background: var(--expand-bg);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid var(--glass-border);
+  border-radius: 12px;
+  font-size: 0.92rem;
+  color: var(--text-secondary);
+  line-height: 2;
+  white-space: pre-wrap;
+  text-shadow: var(--text-shadow);
+  animation: expandIn 0.3s ease;
+}
+
+@keyframes expandIn {
+  from { opacity: 0; max-height: 0; padding-top: 0; padding-bottom: 0; }
+}
+
+.text-full-content h2 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  margin: 20px 0 8px;
+  color: var(--text-primary);
+  text-shadow: var(--text-shadow-strong);
+}
+
+.text-full-content h2:first-child {
+  margin-top: 0;
+}
+
+.text-full-content p {
+  margin-bottom: 10px;
+}
+
+.text-full-content strong {
+  color: var(--text-primary);
+}
+
+.text-collapse-btn {
+  margin-top: 14px;
+  padding: 6px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--glass-border);
+  background: var(--btn-glass-bg);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.text-collapse-btn:hover {
+  background: var(--glass-bg-hover);
+  color: var(--text-primary);
+}
+
+/* ===========================================================
+   空状态 & 加载
+   =========================================================== */
+.empty-state {
+  text-align: center;
+  padding: 64px 20px;
+  color: var(--text-tertiary);
+  text-shadow: var(--text-shadow);
+}
+
+.empty-state__icon {
+  font-size: 2.5rem;
+  margin-bottom: 12px;
+  opacity: 0.5;
+}
+
+.empty-state__text {
+  font-size: 0.95rem;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  padding: 64px;
+}
+
+.loader__spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid var(--spinner-track);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===========================================================
+   页脚
+   =========================================================== */
+.footer {
+  text-align: center;
+  margin-top: 56px;
+  font-size: 0.8rem;
+  color: var(--text-tertiary);
+  opacity: 0.75;
+  text-shadow: var(--text-shadow);
+}
+
+/* ===========================================================
+   响应式 —— 小屏幕
+   =========================================================== */
+@media (max-width: 640px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  body::before {
+    background: rgba(0, 0, 0, 0.35);
+  }
+
+  body.dark::before {
+    background: rgba(0, 0, 0, 0.55);
+  }
+
+  .container {
+    padding: 24px 16px 60px;
+  }
+
+  .channel-header {
+    padding: 24px 20px 28px;
+  }
+
+  .channel-avatar {
+    width: 72px;
+    height: 72px;
+  }
+
+  .channel-name {
+    font-size: 1.4rem;
+  }
+
+  .episode-card {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .episode-cover {
+    width: 100%;
+    height: 180px;
+    border-radius: 12px;
+  }
+
+  .episodes-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .theme-toggle {
+    top: 16px;
+    right: 16px;
+  }
+
+  #bgm-toggle {
+    top: 66px;
+    right: 16px;
+  }
+
+  #bgm-skip {
+    top: 114px;
+    right: 16px;
+  }
+
+  #lyrics-display {
+    bottom: 20px;
+    left: 16px;
+    max-width: 260px;
+    padding: 10px 18px;
+    font-size: 0.82rem;
+  }
+
+  .detail-back {
+    top: 12px;
+    left: 12px;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+  }
+
+  #detail-view {
+    padding: 0;
+  }
+
+  .detail-paper {
+    margin: 20px 12px 40px;
+    padding: 28px 18px;
+    max-width: none;
+    box-shadow: 6px 6px 0px rgba(0, 0, 0, 0.8);
+  }
+
+  .detail-paper__title {
+    font-size: 1.3rem;
+  }
+
+  .detail-paper__body {
+    font-size: 0.88rem;
+  }
+
+  .detail-paper__body pre {
+    font-size: 0.78rem;
+  }
+
+  .detail-paper__body pre code {
+    padding: 14px 16px;
+    font-size: 0.78rem;
+  }
+}
+
+/* ===========================================================
+   阅读量统计 —— 融入 Waline 面板
+   =========================================================== */
+.pv-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 32px 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif;
+  font-size: 14px;
+}
+
+.pv-container svg {
+  flex-shrink: 0;
+  opacity: 0.6;
+}
+
+.pv-container .waline-pageview-count {
+  color: rgba(255, 255, 255, 0.7);
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif;
+  font-size: 14px;
+}
+
+@media (max-width: 640px) {
+  .pv-container {
+    padding: 0 16px 10px;
+    font-size: 12px;
+  }
+
+  .pv-container .waline-pageview-count {
+    font-size: 12px;
+  }
+}
+
+/* ===========================================================
+   Waline 留言板 —— 深度定制 · 亚克力 + 直角 + 宋体
+   =========================================================== */
+
+/* ---- 容器 ---- */
+#waline {
+  max-width: 800px;
+  margin: 44px auto 0;
+  padding: 28px 32px 32px;
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(15px);
+  -webkit-backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0 !important;
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif;
+}
+
+/* ---- 隐藏表情互动 & 底部标识 ---- */
+#waline .wl-reaction { display: none !important; }
+#waline .wl-power { display: none !important; }
+
+/* ---- 面板完全透明 ---- */
+#waline .wl-panel {
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+}
+
+/* ---- 头部（昵称栏） ---- */
+#waline .wl-header {
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.1) !important;
+  border-radius: 0 !important;
+  padding: 0 0 12px !important;
+  margin-bottom: 14px !important;
+}
+
+#waline .wl-header label {
+  color: rgba(255, 255, 255, 0.75);
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif;
+}
+
+/* ---- 只保留昵称 ---- */
+#waline .wl-header-item:nth-child(2),
+#waline .wl-header-item:nth-child(3) {
+  display: none !important;
+}
+
+/* ---- 输入框（悬浮黑色玻璃） ---- */
+#waline .wl-header input,
+#waline textarea,
+#waline .wl-editor,
+#waline .wl-input {
+  border-radius: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  background: rgba(0, 0, 0, 0.35) !important;
+  color: #fff !important;
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif !important;
+  box-shadow: none !important;
+  outline: none !important;
+  padding: 10px 14px !important;
+  font-size: 0.92rem !important;
+}
+
+#waline .wl-header input::placeholder,
+#waline textarea::placeholder {
+  color: rgba(255, 255, 255, 0.4);
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif;
+}
+
+#waline .wl-header input:focus,
+#waline textarea:focus,
+#waline .wl-editor:focus {
+  border-color: rgba(255, 255, 255, 0.3) !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+}
+
+/* ---- 所有文字全局宋体白色 ---- */
+#waline,
+#waline *,
+#waline .wl-comment,
+#waline .wl-comment p,
+#waline .wl-comment .wl-nick,
+#waline .wl-comment .wl-meta,
+#waline .wl-comment .wl-content,
+#waline .wl-cards,
+#waline .wl-count,
+#waline a,
+#waline .wl-header-item label,
+#waline .wl-login-nick {
+  color: rgba(255, 255, 255, 0.9) !important;
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif !important;
+}
+
+/* ---- 评论卡片 ---- */
+#waline .wl-card {
+  border-radius: 0 !important;
+  border: none !important;
+  background: transparent !important;
+  padding: 14px 0 !important;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.06) !important;
+}
+
+/* ---- 评论时间 ---- */
+#waline .wl-meta span {
+  color: rgba(255, 255, 255, 0.45) !important;
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif !important;
+}
+
+/* ---- 提交按钮：白底黑字 + 悬浮发光 ---- */
+#waline .wl-btn {
+  border-radius: 0 !important;
+  border: none !important;
+  background: #fff !important;
+  color: #1a1a1a !important;
+  font-family: "SimSun", "STSong", "Songti SC", "Noto Serif SC", serif !important;
+  font-weight: 700 !important;
+  padding: 10px 28px !important;
+  font-size: 0.9rem !important;
+  letter-spacing: 0.04em;
+  cursor: pointer !important;
+  transition: all 0.25s ease !important;
+}
+
+#waline .wl-btn:hover {
+  background: #fff !important;
+  color: #1a1a1a !important;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.3) !important;
+}
+
+/* ---- 倒序/正序等小按钮 ---- */
+#waline .wl-btn:not(.primary) {
+  background: rgba(255, 255, 255, 0.1) !important;
+  color: rgba(255, 255, 255, 0.75) !important;
+  border: 1px solid rgba(255, 255, 255, 0.15) !important;
+  padding: 5px 14px !important;
+  font-size: 0.78rem !important;
+  font-weight: 500 !important;
+}
+
+#waline .wl-btn:not(.primary):hover {
+  background: rgba(255, 255, 255, 0.2) !important;
+  color: #fff !important;
+}
+
+/* ---- 头像 ---- */
+#waline .wl-avatar img {
+  border-radius: 0 !important;
+}
+
+#waline .wl-avatar {
+  border-radius: 0 !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+}
+
+/* ---- 移动端 ---- */
+@media (max-width: 640px) {
+  #waline {
+    margin: 28px 12px 0;
+    padding: 20px 16px 22px;
+  }
+
+  #waline .wl-btn {
+    padding: 8px 20px !important;
+    font-size: 0.82rem !important;
+  }
+}

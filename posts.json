@@ -1,0 +1,46 @@
+[
+  {
+    "id": "post-000",
+    "date": "2026-05-01",
+    "category": "software",
+    "type": "text",
+    "title": "Markdown 渲染能力测试",
+    "summary": "这篇日志用来验证博客的 Markdown 引擎（marked.js）是否正常工作，包含标题、列表、代码块、引用等常用语法。",
+    "content": "## 为什么选择 Markdown\n\nMarkdown 是一种**轻量级标记语言**，它允许我们使用纯文本格式编写文档，然后转换成结构化的 HTML。对于技术博客来说，它有以下几个优点：\n\n- 语法简单，专注于内容本身\n- 代码块支持语法高亮\n- 可以嵌入 HTML\n- 被 GitHub、Stack Overflow 等平台广泛支持\n\n## 代码示例\n\n下面是一段 Java 代码：\n\n```java\npublic class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println(\"Hello, Bai's Blog!\");\n    }\n}\n```\n\n再来看一段 JavaScript：\n\n```javascript\nconst greet = (name) => {\n  console.log(`你好，${name}，欢迎来到我的技术博客。`);\n};\n\ngreet('访客');\n```\n\n## 引用块测试\n\n> 「代码就像是写给人看的，顺带能在机器上运行。」\n> — Harold Abelson\n\n## 总结\n\n技术博客的**核心价值**在于：\n\n1. 记录自己的学习轨迹\n2. 帮助他人解决同样的问题\n3. 在写的过程中加深理解\n\n写好一篇技术文章，比写一百行注释更有意义。"
+  },
+  {
+    "id": "post-003",
+    "date": "2026-04-29",
+    "category": "software",
+    "type": "file",
+    "title": "常用开发环境及工具包备份",
+    "summary": "最近重装了系统，整理了一下写 Java 和 C++ 常用的环境安装包。直接走云盘直链拉取，不用再去官网慢吞吞地找了。",
+    "downloads": [
+      {"name": "IntelliJ IDEA 2023", "url": "#"},
+      {"name": "Android Studio (Android 项目必备)", "url": "#"},
+      {"name": "Dev-C++", "url": "#"}
+    ]
+  },
+  {
+    "id": "post-002",
+    "date": "2026-04-25",
+    "category": "system",
+    "type": "text",
+    "title": "蛟龙 16 Pro 2023版 (Ryzen 9) 双系统折腾记",
+    "summary": "为了跑一些特定的老软件，给电脑搞了 Windows 10 和 Windows 11 的双系统启动。",
+    "content": "给硬盘重新分了区，引导修复的过程有点折腾。建议大家在折腾前一定要先备好启动盘。后续我会把详细的磁盘分区规划和引导修复命令完整整理出来更新在这篇日志里。"
+  },
+  {
+    "id": "post-001",
+    "date": "2026-04-15",
+    "category": "games",
+    "type": "gallery",
+    "title": "CS2 外设手感测试与参数记录",
+    "summary": "记录一下目前的鼠标握法和游戏内参数，方便以后去网吧或者换电脑时直接套用。",
+    "content": "手长 18cm，目前最舒服的姿势是偏后部的抓握。鼠标换了 Zowie U2 DW，目前 CS2 游戏内的灵敏度定在 800 DPI × 1.1，准星也调整过了。放两张占位图看下画廊排版效果。",
+    "images": [
+      "https://via.placeholder.com/600x400/eeeeee/999999?text=Zowie+U2",
+      "https://via.placeholder.com/600x400/eeeeee/999999?text=CS2+Settings"
+    ]
+  }
+]
