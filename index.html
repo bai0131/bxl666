@@ -701,9 +701,10 @@
         return marked.parse(text);
       }
 
-      async function loadArticle(mdFilePath, slug) {
+      async function loadArticle(slug) {
         try {
-          var response = await fetch(mdFilePath);
+          var path = '/posts/' + slug + '.md?t=' + new Date().getTime();
+          var response = await fetch(path);
           if (!response.ok) {
             throw new Error('HTTP ' + response.status);
           }
@@ -814,7 +815,7 @@
         history.pushState({ page: 'article', slug: slug }, '', '/?p=' + slug);
         typeFilters.style.display = 'none';
         episodesCount.style.display = 'none';
-        loadArticle('./posts/' + slug + '.md', slug);
+        loadArticle(slug);
         updateWalinePath('/?p=' + slug);
       }
 
@@ -830,7 +831,7 @@
           currentSPAPage = 'article';
           typeFilters.style.display = 'none';
           episodesCount.style.display = 'none';
-          loadArticle('./posts/' + e.state.slug + '.md', e.state.slug);
+          loadArticle(e.state.slug);
           updateWalinePath('/?p=' + e.state.slug);
         } else {
           currentSPAPage = 'home';
@@ -855,7 +856,7 @@
       import('https://unpkg.com/@waline/client@v2/dist/waline.mjs').then(function (mod) {
         walineInstance = mod.init({
           el: '#waline',
-          serverURL: 'https://bxl666.top',
+          serverURL: 'https://bxl.vercel.app',
           dark: 'auto',
           reaction: true,
           login: 'disable',
