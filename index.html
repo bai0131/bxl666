@@ -220,7 +220,8 @@
           .then(function (musicAssets) {
             var pairs = [];
             for (var i = 0; i < musicAssets.length; i++) {
-              var mName = musicAssets[i].name;
+              var m = musicAssets[i];
+              var mName = m.name;
               if (!/\.flac$/i.test(mName)) continue;
               var prefix = mName.replace(/\.flac$/i, '');
               var prefixLower = prefix.toLowerCase();
@@ -228,7 +229,7 @@
               pairs.push({
                 name: info.title,
                 artist: info.artist,
-                musicUrl: './music/' + prefixLower + '.flac',
+                musicUrl: m.browser_download_url,
                 lrcUrl: './music/' + prefixLower + '.lrc',
                 coverUrl: './music/' + prefix + '.jpg'
               });
@@ -236,21 +237,7 @@
             initPlayer(buildAudioList(pairs));
           })
           .catch(function () {
-            console.warn('GitHub API 失败，使用本地 musicMap 兜底');
-            var pairs = [];
-            var keys = Object.keys(musicMap);
-            for (var k = 0; k < keys.length; k++) {
-              var prefix = keys[k];
-              var info = musicMap[prefix];
-              pairs.push({
-                name: info.title,
-                artist: info.artist,
-                musicUrl: './music/' + prefix.toLowerCase() + '.flac',
-                lrcUrl: './music/' + prefix.toLowerCase() + '.lrc',
-                coverUrl: './music/' + prefix + '.jpg'
-              });
-            }
-            initPlayer(buildAudioList(pairs));
+            console.warn('GitHub API 失败，播放器无法加载');
           });
       }
 
