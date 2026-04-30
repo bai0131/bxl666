@@ -3,96 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bai • 个人播客</title>
-  <link rel="stylesheet" href="./style.css?v=4">
+  <title>Bai's Blog</title>
+  <link rel="icon" type="image/x-icon" href="favicon.ico?v=1">
+  <link rel="shortcut icon" href="favicon.ico?v=1">
+  <link rel="stylesheet" href="./style.css?v=15">
   <link rel="stylesheet" href="https://unpkg.com/@waline/client@v2/dist/waline.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aplayer/1.10.1/APlayer.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
 </head>
 <body>
 
-  <!-- 全屏欢迎遮罩 -->
-  <div id="welcome-overlay">
-    <h1>Bai</h1>
-    <p>Welcome to my digital garden.</p>
-    <button id="enter-btn">点击进入</button>
-  </div>
+  <!-- 导航栏 -->
+  <header class="navbar">
+    <a class="navbar__logo" href="/">Bai's Blog</a>
+    <nav class="navbar__links">
+      <a href="/" class="navbar__link active" id="article-link">主页</a>
+      <a href="#" class="navbar__link" id="about-link">关于</a>
+    </nav>
+    <button class="theme-toggle" id="themeToggle" title="切换主题">
+      <span class="icon-sun">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </span>
+      <span class="icon-moon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </span>
+    </button>
+  </header>
 
-  <!-- 暗黑模式切换 -->
-  <button class="theme-toggle" id="themeToggle" title="切换暗黑模式">
-    <span class="icon-sun">☀️</span>
-    <span class="icon-moon">🌙</span>
-  </button>
-
-  <!-- 音乐播放 -->
-  <button id="bgm-toggle" title="音乐控制">▶️</button>
-  <button id="bgm-skip" title="下一首">⏭️</button>
+  <!-- 音乐播放器 -->
+  <div id="aplayer"></div>
 
   <!-- 主容器 -->
   <main class="container">
-    <!-- ====== 频道头部 ====== -->
-    <header class="channel-header">
-      <img
-        class="channel-avatar"
-        src="./tx.jpg"
-        alt="头像"
-        onerror="this.style.display='none'"
-      >
-      <h1 class="channel-name">Bai</h1>
-      <p class="channel-handle">@baixinle · 开发者 & CS高手</p>
-      <p class="channel-bio">
-        你说你会哭，不是因为在乎。
-      </p>
-    </header>
 
-    <hr class="divider">
+    <!-- 个人信息 -->
+    <div class="profile-board" id="profileBoard">
+      <img class="profile-board__avatar" src="./tx.jpg" alt="头像" onerror="this.style.display='none'">
+      <h1 class="profile-board__name">Bai</h1>
+      <p class="profile-board__bio">你说你会哭，不是因为在乎.</p>
+      <div class="profile-board__social">
+        <a class="social-icon" href="https://github.com/bai0131" target="_blank" title="GitHub">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+        </a>
+        <a class="social-icon" href="https://steamcommunity.com/profiles/76561198812360822/" target="_blank" title="Steam">
+          <svg width="20" height="20" viewBox="0 0 496 512" fill="currentColor"><path d="M496 256c0 137-111.1 248-248.4 248-113.8 0-209.6-76.3-239-180.4l95.2 39.3c6.4 32.1 34.9 56.4 69.6 56.4 39.2 0 71.9-32.4 70.2-73.5l84.5-60.2c52.1 1.3 95.8-40.9 95.8-93.5 0-51.6-42-93.5-93.7-93.5s-93.7 42-93.7 93.5v1.2L176.6 279c-15.5-.9-30.7 3.4-43.5 12.1L0 236.1C10.2 108.4 117.1 8 247.6 8 384.8 8 496 119 496 256zM155.7 384.3l-57.2-23.6c12.1 18.3 29.5 33.5 50 43.2l7.2-19.6zm89.5-12.8c-.6 21.6-18.2 38.1-39.8 38.1-21.5 0-39.1-17.1-39.7-38.1l66-27.3c2.1 9.6 6.7 18.8 13.5 27.3z"/></svg>
+        </a>
+        <a class="social-icon" href="https://v.douyin.com/jWvV-MOGcW0/?utm_campaign=client_share&app=aweme&utm_medium=ios&tt_from=more&utm_source=more" target="_blank" title="抖音">
+          <svg width="20" height="20" viewBox="0 0 448 512" fill="currentColor"><path d="M448 209.9a210.1 210.1 0 01-122.8-39.3V349.4A162.6 162.6 0 11185 188.3V278.2a74.6 74.6 0 1052.2 71.2V0h88a121.2 121.2 0 001.9 22.2A122.2 122.2 0 00381 102.4a121.4 121.4 0 0067 20.1z"/></svg>
+        </a>
+        <a class="social-icon" href="mailto:1714458904@qq.com" target="_blank" title="Email">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 4L12 13 2 4"/></svg>
+        </a>
+      </div>
+    </div>
 
-    <!-- ====== 视图容器 ====== -->
-
-    <!-- 列表视图 -->
-    <div id="list-view">
-      <!-- 类型筛选 + 计数 -->
+    <!-- 文章列表视图 -->
+    <div id="article-list-view">
       <div class="episodes-header">
         <span class="episodes-count" id="episodesCount">加载中…</span>
         <div class="type-filters" id="typeFilters"></div>
       </div>
-
-      <!-- 剧集列表 -->
-      <div class="episodes-list" id="episodesList">
-        <div class="loader">
-          <div class="loader__spinner"></div>
-        </div>
-      </div>
-
-      <!-- 阅读量 -->
-      <div class="pv-container">
-        <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
-        <span>点击量：<span class="waline-pageview-count" data-path="/">0</span></span>
-      </div>
-
-      <!-- 留言板 -->
-      <div id="waline"></div>
-
-      <!-- 页脚 -->
-      <footer class="footer">
-        <p>© 2026 bai.fm · 数据来源 json</p>
-      </footer>
+      <div id="article-list-content"></div>
     </div>
+
+    <!-- 文章详情视图 -->
+    <div id="article-detail-view" style="display:none;">
+      <button id="detail-back-btn" class="article-detail-back">← 返回列表</button>
+      <div id="article-detail-content"></div>
+    </div>
+
+    <!-- 留言板 -->
+    <div id="waline"></div>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+      <p>© 2026 Bai • Built with Vanilla JS & Markdown • Deployed on GitHub Pages</p>
+      <div class="footer-stats">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        总访问量 <span id="site-pv">--</span> 次
+      </div>
+    </footer>
 
   </main>
 
-  <!-- 详情视图 -->
-  <div id="detail-view" class="hidden">
-    <button id="back-btn" class="detail-back" title="返回">←</button>
-    <div id="detail-content"></div>
-  </div>
-
-  <!-- 背景音乐 -->
-  <audio id="bgm-audio"></audio>
-
-  <!-- 歌词显示 -->
-  <div id="lyrics-display" class="hidden">🎵 正在加载歌词...</div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>
 
   <script>
     (function () {
@@ -101,9 +97,16 @@
          =========================================================== */
       var themeToggle     = document.getElementById('themeToggle');
       var typeFilters     = document.getElementById('typeFilters');
-      var episodesList    = document.getElementById('episodesList');
       var episodesCount   = document.getElementById('episodesCount');
       var walineEl       = document.getElementById('waline');
+      var articleListView     = document.getElementById('article-list-view');
+      var articleListContent  = document.getElementById('article-list-content');
+      var articleDetailView   = document.getElementById('article-detail-view');
+      var articleDetailContent = document.getElementById('article-detail-content');
+      var detailBackBtn       = document.getElementById('detail-back-btn');
+      var profileBoard        = document.getElementById('profileBoard');
+      var aboutLink           = document.getElementById('about-link');
+      var articleLink         = document.getElementById('article-link');
 
       /* ===========================================================
          SPA 路由状态
@@ -145,143 +148,112 @@
       initTheme();
 
       /* ===========================================================
-         播放列表
+         APlayer 初始化 —— GitHub Release 动态抓取 + 映射表
          =========================================================== */
-      var playlist = [
-        { audio: './music/bgm1.flac', lrc: './music/bgm1.lrc' },
-        { audio: './music/bgm2.flac', lrc: './music/bgm2.lrc' },
-        { audio: './music/bgm3.flac', lrc: './music/bgm3.lrc' }
-      ];
-      var currentTrackIndex = -1;
+      var MUSIC_API  = 'https://api.github.com/repos/bai0131/bxl666/releases/tags/music';
+      var COVERS_API = 'https://api.github.com/repos/bai0131/bxl666/releases/tags/covers';
 
-      /* ===========================================================
-         背景音乐控制
-         =========================================================== */
-      var bgmToggle = document.getElementById('bgm-toggle');
-      var bgmSkip   = document.getElementById('bgm-skip');
-      var bgmAudio  = document.getElementById('bgm-audio');
-      var lyricsDisplay = document.getElementById('lyrics-display');
+      var musicMap = {
+        'bgm1':  { title: '那天下雨了',   artist: '周杰伦' },
+        'bgm2':  { title: '晴天',         artist: '周杰伦' },
+        'bgm3':  { title: '一路向北',     artist: '周杰伦' },
+        'bgm4':  { title: '夜曲',         artist: '周杰伦' },
+        'bgm5':  { title: '发如雪',       artist: '周杰伦' },
+        'bgm6':  { title: '蒲公英的约定', artist: '周杰伦' },
+        'bgm7':  { title: '枫',           artist: '周杰伦' },
+        'bgm8':  { title: '爱你没差',     artist: '周杰伦' },
+        'bgm9':  { title: '我不配',       artist: '周杰伦' },
+        'bgm10': { title: '最长的电影',   artist: '周杰伦' },
+        'bgm11': { title: '告白气球',     artist: '周杰伦' },
+        'bgm12': { title: '反方向的钟',   artist: '周杰伦' }
+      };
 
-      bgmToggle.addEventListener('click', function () {
-        if (bgmAudio.paused) {
-          bgmAudio.play();
-          bgmToggle.textContent = '⏸️';
-        } else {
-          bgmAudio.pause();
-          bgmToggle.textContent = '▶️';
-        }
-      });
-
-      /* ---- 切歌 ---- */
-      bgmSkip.addEventListener('click', function () {
-        loadRandomTrack();
-      });
-
-      /* ---- 一首播完自动切下一首 ---- */
-      bgmAudio.addEventListener('ended', function () {
-        loadRandomTrack();
-      });
-
-      /* ===========================================================
-         LRC 歌词解析 & 同步
-         =========================================================== */
-      var parsedLyrics = [];
-      var currentLyricIndex = -1;
-
-      function loadLyrics(lrcPath) {
-        parsedLyrics = [];
-        currentLyricIndex = -1;
-        lyricsDisplay.textContent = '🎵 正在加载新曲目...';
-
-        console.log('正在尝试从 ' + lrcPath + ' 获取歌词...');
-        fetch(lrcPath)
-          .then(function (response) {
-            if (!response.ok) throw new Error('LRC 文件加载失败');
-            console.log('歌词文件获取成功，开始解析...');
-            return response.text();
+      function fetchReleaseAssets(apiUrl) {
+        return fetch(apiUrl + '?t=' + Date.now(), { cache: 'no-store' })
+          .then(function (res) {
+            if (!res.ok) throw new Error('Release fetch failed: ' + apiUrl);
+            return res.json();
           })
-          .then(function (text) {
-            var lines = text.split('\n');
-            var re = /\[(\d{2}):(\d{2})\.(\d{2,3})\](.*)/;
-            for (var i = 0; i < lines.length; i++) {
-              var match = lines[i].match(re);
-              if (!match) continue;
-              var mins = parseInt(match[1], 10);
-              var secs = parseInt(match[2], 10);
-              var msStr = match[3];
-              var ms = parseInt(msStr, 10) / (msStr.length === 2 ? 100 : 1000);
-              var time = mins * 60 + secs + ms;
-              var text = match[4].trim();
-              if (text) {
-                parsedLyrics.push({ time: time, text: text });
-              }
-            }
-            parsedLyrics.sort(function (a, b) { return a.time - b.time; });
-            console.log('歌词解析完成，共 ' + parsedLyrics.length + ' 行');
+          .then(function (data) {
+            return data.assets || [];
           })
           .catch(function (err) {
-            console.error('歌词加载失败:', err);
-            lyricsDisplay.textContent = '🎵 未找到歌词文件';
+            console.warn('Release 请求失败:', apiUrl, err);
+            return [];
           });
       }
 
-      /* ---- 随机加载一首歌 ---- */
-      function loadRandomTrack() {
-        var idx;
-        do {
-          idx = Math.floor(Math.random() * playlist.length);
-        } while (idx === currentTrackIndex && playlist.length > 1);
+      function pairAllAssets(musicAssets, coverAssets) {
+        var pairs = [];
+        for (var i = 0; i < musicAssets.length; i++) {
+          var m = musicAssets[i];
+          var mName = m.name;
+          if (!/\.flac$/i.test(mName)) continue;
+          var prefix = mName.replace(/\.flac$/i, '');
+          var prefixLower = prefix.toLowerCase();
 
-        currentTrackIndex = idx;
-        var track = playlist[idx];
+          var lrcUrl = './music/' + prefixLower + '.lrc';
 
-        bgmAudio.src = track.audio;
-        loadLyrics(track.lrc);
+          var coverUrl = './music/' + prefix + '.jpg';
 
-        bgmAudio.play().then(function () {
-          bgmToggle.textContent = '⏸️';
+          var info = musicMap[prefix] || { title: prefix, artist: 'Jay Chou' };
+
+          pairs.push({
+            name: info.title,
+            artist: info.artist,
+            prefix: prefix,
+            musicUrl: m.browser_download_url,
+            lrcUrl: lrcUrl,
+            coverUrl: coverUrl
+          });
+        }
+        return pairs;
+      }
+
+      function initMusic() {
+        Promise.all([
+          fetchReleaseAssets(MUSIC_API),
+          fetchReleaseAssets(COVERS_API)
+        ]).then(function (results) {
+          var musicAssets = results[0];
+          var coverAssets = results[1];
+          var tracks = pairAllAssets(musicAssets, coverAssets);
+
+          if (tracks.length === 0) {
+            console.warn('未匹配到任何音乐文件');
+            return;
+          }
+
+          var now = Date.now();
+          var audioList = [];
+          for (var n = 0; n < tracks.length; n++) {
+            var t = tracks[n];
+            audioList.push({
+              name: t.name,
+              artist: t.artist,
+              url: t.musicUrl + '?t=' + now,
+              lrc: t.lrcUrl + '?t=' + now,
+              cover: t.coverUrl + '?t=' + now
+            });
+          }
+
+          console.log('APlayer audio 数组:', JSON.stringify(audioList, null, 2));
+
+          new APlayer({
+            container: document.getElementById('aplayer'),
+            fixed: true,
+            lrcType: 3,
+            autoplay: true,
+            order: 'random',
+            theme: '#2980b9',
+            audio: audioList
+          });
         }).catch(function (err) {
-          console.warn('音乐播放被浏览器拦截:', err);
+          console.error('APlayer 初始化失败:', err);
         });
       }
 
-      bgmAudio.addEventListener('timeupdate', function () {
-        if (parsedLyrics.length === 0) return;
-        var ct = bgmAudio.currentTime;
-        var idx = -1;
-        for (var i = 0; i < parsedLyrics.length; i++) {
-          if (parsedLyrics[i].time <= ct) {
-            idx = i;
-          } else {
-            break;
-          }
-        }
-        if (idx !== currentLyricIndex) {
-          currentLyricIndex = idx;
-          lyricsDisplay.textContent = '🎵 ' + (idx >= 0 ? parsedLyrics[idx].text : '');
-        }
-      });
-
-      /* ===========================================================
-         全屏欢迎遮罩 —— 点击进入触发播放
-         =========================================================== */
-      var welcomeOverlay = document.getElementById('welcome-overlay');
-      var enterBtn       = document.getElementById('enter-btn');
-
-      enterBtn.addEventListener('click', function () {
-        // 遮罩淡出
-        welcomeOverlay.classList.add('fade-out');
-        // 加载随机曲目并播放
-        loadRandomTrack();
-        // 显示歌词
-        lyricsDisplay.classList.remove('hidden');
-      });
-
-      if (sessionStorage.getItem('blog_visited')) {
-        welcomeOverlay.classList.add('fade-out');
-        loadRandomTrack();
-        lyricsDisplay.classList.remove('hidden');
-      }
+      initMusic();
 
       /* ===========================================================
          加载 posts.json
@@ -316,12 +288,22 @@
       }
 
       function showError(msg) {
-        episodesList.innerHTML =
+        articleListContent.innerHTML =
           '<div class="empty-state">' +
           '<div class="empty-state__icon">⚠️</div>' +
           '<p class="empty-state__text">' + msg + '</p>' +
           '</div>';
         console.error(msg);
+      }
+
+      function formatDate(dateStr) {
+        var d = new Date(dateStr);
+        var year = d.getFullYear();
+        var month = d.getMonth() + 1;
+        var day = d.getDate();
+        var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+        var wd = weekdays[d.getDay()];
+        return year + '年' + month + '月' + day + '日 · 星期' + wd;
       }
 
       /* ===========================================================
@@ -365,13 +347,11 @@
          =========================================================== */
       function render() {
         var posts = getFilteredPosts();
+        episodesCount.textContent = '📻 ' + posts.length + ' 篇文章';
+        console.log('正在渲染的文章:', posts.length, '篇, activeType:', activeType, posts);
 
-        // 更新计数器
-        episodesCount.textContent = '📻 ' + posts.length + ' 期内容';
-
-        // 空状态
         if (posts.length === 0) {
-          episodesList.innerHTML =
+          articleListContent.innerHTML =
             '<div class="empty-state">' +
             '<div class="empty-state__icon">🎙️</div>' +
             '<p class="empty-state__text">暂无该类型的内容</p>' +
@@ -379,309 +359,224 @@
           return;
         }
 
-        // 构建每期卡片
         var html = '';
         for (var i = 0; i < posts.length; i++) {
-          html += buildEpisodeHTML(posts[i]);
+          html += buildArticleCard(posts[i]);
         }
-        episodesList.innerHTML = html;
-
-        // 绑定交互事件
-        bindGalleryClick();
+        articleListContent.innerHTML = html;
         bindCardClick();
+        spaHasRendered = true;
       }
 
-      /* ===========================================================
-         构建单集 HTML
-         =========================================================== */
-      function buildEpisodeHTML(post) {
-        // 交互区域
-        var interactiveHTML = '';
-        var galleryNoteHTML = '';
-        switch (post.type) {
-          case 'file':
-            interactiveHTML = buildFileButtons(post.downloads);
-            break;
-          case 'gallery':
-            interactiveHTML = buildGalleryStrip(post.id, post.images);
-            // 如果画廊帖子有 content，显示为说明文字
-            if (post.content) {
-              galleryNoteHTML = '<p class="episode-gallery-note">' + esc(post.content) + '</p>';
-            }
-            break;
-        }
-
-        // 封面图：有 cover 则显示，无则生成纯色占位
-        var coverSrc = post.cover || (
-          'data:image/svg+xml,' +
-          encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200">' +
-          '<rect fill="#e0dbd0" width="200" height="200"/><text x="100" y="110" text-anchor="middle" ' +
-          'font-size="40" fill="#aaa">📦</text></svg>')
-        );
+      function buildArticleCard(post) {
+        var catLabels = { software: '💻 软件', games: '🎮 游戏', system: '⚙️ 系统' };
+        var catLabel = catLabels[post.category] || '';
+        var iconMap = { software: '💻', games: '🎮', system: '⚙️' };
+        var icon = iconMap[post.category] || '📄';
 
         return (
-          '<article class="episode-card" data-post-id="' + esc(post.id) + '">' +
-          '<img class="episode-cover" src="' + coverSrc +
-          '" alt="封面" loading="lazy">' +
-          '<div class="episode-body">' +
-          '<time class="episode-date">' + esc(formatDate(post.date)) + '</time>' +
-          '<h2 class="episode-title">' + esc(post.title) + '</h2>' +
-          '<p class="episode-summary">' + esc(post.summary) + '</p>' +
-          galleryNoteHTML +
-          '<div class="episode-interactive">' + interactiveHTML + '</div>' +
-          '</div>' +
+          '<article class="article-card" data-post-id="' + esc(post.id) + '">' +
+          '  <div class="article-card__icon">' + icon + '</div>' +
+          '  <div class="article-card__body">' +
+          '    <div class="article-card__top">' +
+          '      <span class="article-card__tag">' + catLabel + '</span>' +
+          '      <time class="article-card__date">' + esc(formatDate(post.date)) + '</time>' +
+          '    </div>' +
+          '    <h2 class="article-card__title">' + esc(post.title) + '</h2>' +
+          '    <p class="article-card__summary">' + esc(post.summary) + '</p>' +
+          '  </div>' +
           '</article>'
         );
       }
 
-      /* ---- 格式化日期 ---- */
-      function formatDate(dateStr) {
-        var d = new Date(dateStr);
-        var year = d.getFullYear();
-        var month = d.getMonth() + 1;
-        var day = d.getDate();
-        var weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-        var wd = weekdays[d.getDay()];
-        return year + '年' + month + '月' + day + '日 · 星期' + wd;
-      }
-
-      /* ===========================================================
-         type: file —— 下载按钮列表
-         =========================================================== */
-      function buildFileButtons(files) {
-        if (!files || files.length === 0) return '';
-        var html = '<div class="file-buttons">';
-        for (var i = 0; i < files.length; i++) {
-          var f = files[i];
-          html +=
-            '<a class="file-btn" href="' + esc(f.url) +
-            '" target="_blank" rel="noopener noreferrer">' +
-            '<span class="file-btn__icon">' + (f.icon || '📎') + '</span>' +
-            esc(f.name) +
-            '</a>';
-        }
-        html += '</div>';
-        return html;
-      }
-
-      /* ===========================================================
-         type: gallery —— 横向缩略图列表
-         =========================================================== */
-      function buildGalleryStrip(postId, images) {
-        if (!images || images.length === 0) return '';
-        var html = '<div class="gallery-strip" data-post-id="' + postId + '">';
-        for (var i = 0; i < images.length; i++) {
-          html +=
-            '<img class="gallery-thumb" src="' + esc(images[i]) +
-            '" alt="缩略图 ' + (i + 1) + '" loading="lazy" ' +
-            'data-full="' + esc(images[i]) + '" data-index="' + i + '">';
-        }
-        html += '</div>';
-        return html;
-      }
-
-      /* ---- 画廊缩略图点击 → 灯箱 ---- */
-      function bindGalleryClick() {
-        episodesList.querySelectorAll('.gallery-thumb').forEach(function (thumb) {
-          thumb.addEventListener('click', function (e) {
-            e.stopPropagation();
-            openLightbox(this.getAttribute('data-full'));
-          });
-        });
-      }
-
-      /* ---- 灯箱 ---- */
-      function openLightbox(src) {
-        // 移除已有灯箱
-        var existing = document.querySelector('.lightbox');
-        if (existing) existing.remove();
-
-        var overlay = document.createElement('div');
-        overlay.className = 'lightbox';
-
-        var img = document.createElement('img');
-        img.className = 'lightbox__img';
-        img.src = src;
-        img.alt = '查看大图';
-
-        var closeBtn = document.createElement('button');
-        closeBtn.className = 'lightbox__close';
-        closeBtn.textContent = '✕';
-
-        overlay.appendChild(img);
-        overlay.appendChild(closeBtn);
-        document.body.appendChild(overlay);
-
-        // 点击遮罩或关闭按钮 → 关闭
-        function close() {
-          overlay.remove();
-          document.removeEventListener('keydown', onKey);
-        }
-
-        overlay.addEventListener('click', function (e) {
-          if (e.target === overlay || e.target === closeBtn) close();
-        });
-
-        function onKey(e) {
-          if (e.key === 'Escape') close();
-        }
-        document.addEventListener('keydown', onKey);
-      }
-
-      /* ===========================================================
-         type: text —— 阅读全文 / 收起
-         =========================================================== */
-      function buildTextButton(postId) {
-        return (
-          '<button class="text-expand-btn" data-post-id="' + postId + '">' +
-          '📖 阅读全文' +
-          '</button>' +
-          '<div class="text-full-content" data-post-id="' + postId +
-          '" style="display:none;"></div>'
-        );
-      }
-
-      function bindTextExpand() {
-        episodesList.querySelectorAll('.text-expand-btn').forEach(function (btn) {
-          btn.addEventListener('click', function (e) {
-            e.stopPropagation();
-            var postId = this.getAttribute('data-post-id');
-            var contentDiv = episodesList.querySelector(
-              '.text-full-content[data-post-id="' + postId + '"]'
-            );
-            toggleTextPanel(this, contentDiv, postId);
-          });
-        });
-      }
-
-      function toggleTextPanel(btn, contentDiv, postId) {
-        var isVisible = contentDiv.style.display !== 'none';
-
-        if (isVisible) {
-          // 收起
-          contentDiv.style.display = 'none';
-          btn.innerHTML = '📖 阅读全文';
-          // 移除已添加的收起按钮
-          var collapseBtn = contentDiv.querySelector('.text-collapse-btn');
-          if (collapseBtn) collapseBtn.remove();
-        } else {
-          // 展开 —— 查找对应帖子的全文内容
-          var post = null;
-          for (var i = 0; i < allPosts.length; i++) {
-            if (allPosts[i].id === postId) { post = allPosts[i]; break; }
-          }
-          if (!post || !post.content) return;
-
-          contentDiv.innerHTML = formatMarkdownText(post.content) +
-            '<button class="text-collapse-btn">收起 ▲</button>';
-
-          contentDiv.style.display = 'block';
-          btn.innerHTML = '📕 收起全文';
-
-          // 绑定收起按钮
-          contentDiv.querySelector('.text-collapse-btn').addEventListener('click', function (e) {
-            e.stopPropagation();
-            toggleTextPanel(btn, contentDiv, postId);
-          });
-        }
-      }
-
-      /* ===========================================================
-         卡片点击 → 进入详情页
-         =========================================================== */
-      var listView   = document.getElementById('list-view');
-      var detailView = document.getElementById('detail-view');
-      var detailContent = document.getElementById('detail-content');
-      var backBtn    = document.getElementById('back-btn');
-
       function bindCardClick() {
-        episodesList.querySelectorAll('.episode-card').forEach(function (card) {
-          card.addEventListener('click', function (e) {
-            // 不拦截：下载按钮、展开按钮、缩略图、灯箱关闭
-            if (e.target.closest('.file-btn') ||
-                e.target.closest('.text-expand-btn') ||
-                e.target.closest('.text-collapse-btn') ||
-                e.target.closest('.gallery-thumb') ||
-                e.target.closest('.lightbox')) {
-              return;
-            }
+        articleListContent.querySelectorAll('.article-card').forEach(function (card) {
+          card.addEventListener('click', function () {
             var postId = this.getAttribute('data-post-id');
-            showDetail(postId);
+            showArticleDetail(postId);
           });
         });
       }
 
-      function showDetail(postId) {
+      function showArticleDetail(postId) {
         var post = null;
         for (var i = 0; i < allPosts.length; i++) {
           if (allPosts[i].id === postId) { post = allPosts[i]; break; }
         }
         if (!post) return;
 
-        // 构建画廊 HTML
+        articleDetailContent.innerHTML = '<div class="article-detail-loading">加载中…</div>';
+        articleListView.style.display = 'none';
+        articleDetailView.style.display = '';
+        profileBoard.style.display = 'none';
+        document.title = post.title + ' | Bai\'s Blog';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        updateWalinePath('/?p=' + postId);
+
+        fetchArticleContent(post);
+      }
+
+      function fetchArticleContent(post) {
+        var mdPath = '/posts/' + post.id + '.md?t=' + new Date().getTime();
+
+        fetch(mdPath)
+          .then(function (res) {
+            if (!res.ok) throw new Error('no md file');
+            return res.text();
+          })
+          .then(function (text) {
+            renderDetailHTML(post, marked.parse(text));
+            hljs.highlightAll();
+          })
+          .catch(function () {
+            if (post.content) {
+              renderDetailHTML(post, formatMarkdownText(post.content));
+              hljs.highlightAll();
+            } else {
+              var html = buildDetailFallback(post);
+              articleDetailContent.innerHTML = html;
+              bindDetailGallery();
+            }
+          });
+      }
+
+      function buildDetailFallback(post) {
+        var categoryLabels = { software: '💻 软件', games: '🎮 游戏', system: '⚙️ 系统' };
+        var catLabel = categoryLabels[post.category] || post.category || '';
+
         var galleryHTML = '';
         if (post.images && post.images.length > 0) {
-          galleryHTML = '<div class="detail-paper__gallery">';
+          galleryHTML = '<div class="article-detail__gallery">';
           for (var g = 0; g < post.images.length; g++) {
             galleryHTML +=
-              '<img class="detail-paper__gallery-img" src="' + esc(post.images[g]) +
-              '" alt="图片 ' + (g + 1) + '" loading="lazy" ' +
-              'data-full="' + esc(post.images[g]) + '">';
+              '<img class="article-detail__gallery-img" src="' + esc(post.images[g]) +
+              '" alt="图片' + (g + 1) + '" loading="lazy" data-full="' + esc(post.images[g]) + '">';
           }
           galleryHTML += '</div>';
         }
 
-        // 构建下载区 HTML
         var downloadsHTML = '';
         if (post.downloads && post.downloads.length > 0) {
-          downloadsHTML += '<div class="detail-paper__downloads-title">📦 下载资源</div>';
-          downloadsHTML += '<div class="detail-paper__downloads">';
+          downloadsHTML = '<div class="article-detail__downloads-title">📦 下载资源</div><div class="article-detail__downloads">';
           for (var d = 0; d < post.downloads.length; d++) {
             var f = post.downloads[d];
             downloadsHTML +=
-              '<a class="detail-paper__dl-btn" href="' + esc(f.url) +
-              '" target="_blank" rel="noopener noreferrer">' +
-              '<span>' + (f.icon || '📎') + '</span>' + esc(f.name) + '</a>';
+              '<a class="article-detail__dl-btn" href="' + esc(f.url) +
+              '" target="_blank" rel="noopener noreferrer">' + esc(f.name) + '</a>';
           }
           downloadsHTML += '</div>';
         }
 
-        // 分类标签
+        return (
+          '<div class="article-detail">' +
+          '  <h1 class="article-detail__title">' + esc(post.title) + '</h1>' +
+          '  <div class="article-detail__meta">' +
+          '    <span>' + esc(formatDate(post.date)) + '</span>' +
+          '    <span class="article-detail__tag">' + catLabel + '</span>' +
+          '  </div>' +
+          galleryHTML +
+          '  <div class="article-detail__body">' + esc(post.summary) + '</div>' +
+          downloadsHTML +
+          '</div>'
+        );
+      }
+
+      function renderDetailHTML(post, bodyHTML) {
         var categoryLabels = { software: '💻 软件', games: '🎮 游戏', system: '⚙️ 系统' };
         var catLabel = categoryLabels[post.category] || post.category || '';
 
-        detailContent.innerHTML =
-          '<div class="detail-paper">' +
-          '  <h1 class="detail-paper__title">' + esc(post.title) + '</h1>' +
-          '  <div class="detail-paper__meta">' +
-          '    <span class="detail-paper__date">' + esc(formatDate(post.date)) + '</span>' +
-          '    <span class="detail-paper__tag">' + catLabel + '</span>' +
+        articleDetailContent.innerHTML =
+          '<div class="article-detail">' +
+          '  <h1 class="article-detail__title">' + esc(post.title) + '</h1>' +
+          '  <div class="article-detail__meta">' +
+          '    <span>' + esc(formatDate(post.date)) + '</span>' +
+          '    <span class="article-detail__tag">' + catLabel + '</span>' +
           '  </div>' +
-          galleryHTML +
-          '  <div class="detail-paper__body">' +
-          formatMarkdownText(post.content || post.summary || '') +
-          '  </div>' +
-          downloadsHTML +
+          '  <div class="article-detail__body">' + bodyHTML + '</div>' +
           '</div>';
 
-        // 绑定画廊缩略图
-        detailContent.querySelectorAll('.detail-paper__gallery-img').forEach(function (thumb) {
-          thumb.addEventListener('click', function (e) {
+        bindDetailGallery();
+      }
+
+      function bindDetailGallery() {
+        articleDetailContent.querySelectorAll('.article-detail__gallery-img').forEach(function (img) {
+          img.addEventListener('click', function (e) {
             e.stopPropagation();
             openLightbox(this.getAttribute('data-full'));
           });
         });
-
-        // 视图切换
-        listView.classList.add('fade-out');
-        detailView.classList.remove('hidden');
-        walineEl.style.display = 'none';
-        window.scrollTo({ top: 0, behavior: 'instant' });
       }
 
-      backBtn.addEventListener('click', function () {
+      detailBackBtn.addEventListener('click', function () {
+        showArticleList();
+      });
+
+      aboutLink.addEventListener('click', function (e) {
+        e.preventDefault();
+        showAboutPage();
+      });
+
+      articleLink.addEventListener('click', function (e) {
+        e.preventDefault();
         navigateHome();
       });
+
+      function setNavbarActive(page) {
+        var links = document.querySelectorAll('.navbar__link');
+        for (var i = 0; i < links.length; i++) {
+          links[i].classList.remove('active');
+        }
+        if (page === 'about') {
+          aboutLink.classList.add('active');
+        } else {
+          articleLink.classList.add('active');
+        }
+      }
+
+      function showAboutPage() {
+        setNavbarActive('about');
+        currentSPAPage = 'about';
+        history.pushState({ page: 'about' }, '', '/#about');
+        document.title = '关于 | Bai\'s Blog';
+
+        articleDetailContent.innerHTML = '<div class="article-detail-loading">加载中…</div>';
+        articleListView.style.display = 'none';
+        articleDetailView.style.display = '';
+        profileBoard.style.display = 'none';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+
+        fetch('/posts/about.md?t=' + new Date().getTime())
+          .then(function (res) {
+            if (!res.ok) throw new Error('about.md not found');
+            return res.text();
+          })
+          .then(function (text) {
+            articleDetailContent.innerHTML =
+              '<div class="article-detail">' +
+              '  <div class="article-detail__body">' + marked.parse(text) + '</div>' +
+              '</div>';
+            hljs.highlightAll();
+          })
+          .catch(function () {
+            articleDetailContent.innerHTML =
+              '<div class="article-detail">' +
+              '  <div class="article-detail__body" style="text-align:center;padding:60px 0;color:var(--paper-muted);">' +
+              '    关于页面加载失败，请确认 posts/about.md 存在。' +
+              '  </div>' +
+              '</div>';
+          });
+      }
+
+      function showArticleList() {
+        setNavbarActive('home');
+        document.title = 'Bai | Welcome to my digital garden';
+        articleDetailView.style.display = 'none';
+        articleListView.style.display = '';
+        profileBoard.style.display = '';
+        articleDetailContent.innerHTML = '';
+        window.scrollTo({ top: 0, behavior: 'instant' });
+        updateWalinePath('/');
+      }
 
       /* ---- Markdown 渲染（marked.js + highlight.js） ---- */
       marked.setOptions({
@@ -701,50 +596,40 @@
         return marked.parse(text);
       }
 
-      async function loadArticle(slug) {
-        try {
-          var path = '/posts/' + slug + '.md?t=' + new Date().getTime();
-          var response = await fetch(path);
-          if (!response.ok) {
-            throw new Error('HTTP ' + response.status);
-          }
-          var text = await response.text();
-          var html =
-            '<div class="article-glass">' +
-            '<a class="article-back-link" href="javascript:void(0)">← 返回文章列表</a>' +
-            marked.parse(text) +
-            '</div>';
-          episodesList.innerHTML = html;
-          hljs.highlightAll();
-          spaHasRendered = true;
-          walineEl.style.display = '';
+      /* ---- 灯箱 ---- */
+      function openLightbox(src) {
+        var existing = document.querySelector('.lightbox');
+        if (existing) existing.remove();
 
-          var backLink = episodesList.querySelector('.article-back-link');
-          if (backLink) {
-            backLink.addEventListener('click', function (e) {
-              e.preventDefault();
-              navigateHome();
-            });
-          }
+        var overlay = document.createElement('div');
+        overlay.className = 'lightbox';
 
-          window.scrollTo({ top: 0, behavior: 'instant' });
-        } catch (err) {
-          episodesList.innerHTML =
-            '<div class="article-glass">' +
-            '<a class="article-back-link" href="javascript:void(0)">← 返回文章列表</a>' +
-            '<p style="color: #999; text-align: center; padding: 40px 0;">文章加载失败，请稍后再试。</p>' +
-            '</div>';
+        var img = document.createElement('img');
+        img.className = 'lightbox__img';
+        img.src = src;
+        img.alt = '查看大图';
 
-          var backLink = episodesList.querySelector('.article-back-link');
-          if (backLink) {
-            backLink.addEventListener('click', function (e) {
-              e.preventDefault();
-              navigateHome();
-            });
-          }
+        var closeBtn = document.createElement('button');
+        closeBtn.className = 'lightbox__close';
+        closeBtn.textContent = '✕';
 
-          console.error('文章加载失败:', err);
+        overlay.appendChild(img);
+        overlay.appendChild(closeBtn);
+        document.body.appendChild(overlay);
+
+        function close() {
+          overlay.remove();
+          document.removeEventListener('keydown', onKey);
         }
+
+        overlay.addEventListener('click', function (e) {
+          if (e.target === overlay || e.target === closeBtn) close();
+        });
+
+        function onKey(e) {
+          if (e.key === 'Escape') close();
+        }
+        document.addEventListener('keydown', onKey);
       }
 
       /* ===========================================================
@@ -765,89 +650,38 @@
         return params.get(name);
       }
 
-      var mdArticles = [
-        {
-          slug: 'hello-world',
-          title: 'Hello, World!',
-          date: '2026-04-30',
-          summary: '欢迎来到我的极客博客——内容与代码分离的 Markdown 渲染管线。'
-        }
-      ];
-
-      function renderArticleList() {
-        typeFilters.style.display = 'none';
-        episodesCount.style.display = 'none';
-        spaHasRendered = true;
-
-        var html =
-          '<div class="article-list-glass">' +
-          '  <h2 class="article-list__heading">📝 文章列表</h2>' +
-          '  <p class="article-list__sub">基于 Markdown + Fetch API 的极客工作流</p>';
-
-        for (var i = 0; i < mdArticles.length; i++) {
-          var a = mdArticles[i];
-          html +=
-            '<a class="article-list__link" href="/?p=' + esc(a.slug) + '" data-slug="' + esc(a.slug) + '">' +
-            '  <span class="article-list__title">' + esc(a.title) + '</span>' +
-            '  <span class="article-list__meta">' + esc(a.date) + ' · ' + esc(a.summary) + '</span>' +
-            '</a>';
-        }
-
-        html += '</div>';
-        episodesList.innerHTML = html;
-        walineEl.style.display = '';
-        detailView.classList.add('hidden');
-        window.scrollTo({ top: 0, behavior: 'instant' });
-
-        episodesList.querySelectorAll('.article-list__link').forEach(function (link) {
-          link.addEventListener('click', function (e) {
-            e.preventDefault();
-            var slug = this.getAttribute('data-slug');
-            if (slug) {
-              navigateToArticle(slug);
-            }
-          });
-        });
-      }
-
-      function navigateToArticle(slug) {
+      function navigateToPost(postId) {
         currentSPAPage = 'article';
-        history.pushState({ page: 'article', slug: slug }, '', '/?p=' + slug);
-        typeFilters.style.display = 'none';
-        episodesCount.style.display = 'none';
-        loadArticle(slug);
-        updateWalinePath('/?p=' + slug);
+        history.pushState({ page: 'article', postId: postId }, '', '/?p=' + postId);
+        showArticleDetail(postId);
       }
 
       function navigateHome() {
         currentSPAPage = 'home';
         history.pushState({ page: 'home' }, '', window.location.pathname);
-        renderArticleList();
-        updateWalinePath('/');
+        showArticleList();
       }
 
       window.addEventListener('popstate', function (e) {
-        if (e.state && e.state.page === 'article' && e.state.slug) {
+        if (e.state && e.state.page === 'about') {
+          currentSPAPage = 'about';
+          showAboutPage();
+        } else if (e.state && e.state.page === 'article' && e.state.postId) {
           currentSPAPage = 'article';
-          typeFilters.style.display = 'none';
-          episodesCount.style.display = 'none';
-          loadArticle(e.state.slug);
-          updateWalinePath('/?p=' + e.state.slug);
+          showArticleDetail(e.state.postId);
         } else {
           currentSPAPage = 'home';
-          renderArticleList();
-          updateWalinePath('/');
+          showArticleList();
         }
       });
 
-      var routeParam = getQueryParam('p');
-
       loadPosts();
 
+      var routeParam = getQueryParam('p');
       if (routeParam) {
-        navigateToArticle(routeParam);
-      } else {
-        navigateHome();
+        navigateToPost(routeParam);
+      } else if (window.location.hash === '#about') {
+        showAboutPage();
       }
 
       /* ===========================================================
@@ -868,6 +702,15 @@
           walineInstance.update({ path: pendingWalinePath });
           pendingWalinePath = null;
         }
+
+        fetch('https://bxl.vercel.app/article?path=/&type=time')
+          .then(function (r) { return r.text(); })
+          .then(function (d) {
+            var pv = parseInt(d, 10) || 0;
+            var el = document.getElementById('site-pv');
+            if (el) { el.textContent = pv; }
+          })
+          .catch(function () {});
       }).catch(function (err) {
         console.warn('Waline 加载失败:', err);
       });
