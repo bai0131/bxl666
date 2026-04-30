@@ -88,10 +88,26 @@
 
   </main>
 
+  <div id="dbg" style="position:fixed;bottom:0;left:0;right:0;max-height:35vh;overflow-y:auto;background:rgba(0,0,0,0.88);color:#0f0;font:11px/1.4 monospace;padding:8px;z-index:99999;white-space:pre-wrap;word-break:break-all;"></div>
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/aplayer/1.10.1/APlayer.min.js"></script>
 
   <script>
     (function () {
+      var _log = console.log, _err = console.error, _warn = console.warn;
+      var buf = [];
+      function add(tag, args) {
+        var msg = Array.prototype.slice.call(args).join(' ');
+        buf.push(tag + ' ' + msg);
+        if (buf.length > 30) buf.shift();
+        var el = document.getElementById('dbg');
+        if (el) el.textContent = buf.join('\n');
+      }
+      console.log = function(){ _log.apply(console, arguments); add('[L]', arguments); };
+      console.error = function(){ _err.apply(console, arguments); add('[❌]', arguments); };
+      console.warn = function(){ _warn.apply(console, arguments); add('[⚠]', arguments); };
+      window.onerror = function(m){ add('[❌]', [m]); };
+
       /* ===========================================================
          DOM 引用
          =========================================================== */
@@ -720,7 +736,5 @@
       });
     })();
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/eruda@3.4.1/eruda.min.js"></script>
-  <script>if(typeof eruda!=='undefined')eruda.init();</script>
 </body>
 </html>
